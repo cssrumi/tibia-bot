@@ -1,0 +1,6 @@
+pynput~=1.7.3
+pywin32
+attrs~=20.3.0
+pymem
+opencv-python
+numpy
