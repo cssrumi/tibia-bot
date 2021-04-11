@@ -1,6 +1,6 @@
 from pynput.keyboard import Key
 
-from state.game import Game
+from game.game import Game
 from state.player import PlayerStateManager
 from state.window import Window
 from task.foodeater import FoodEater
@@ -16,7 +16,7 @@ def main():
     player = PlayerStateManager()
     window.add_update_listener(player.window_listener)
 
-    m_training = MagicTraining(game, player, key=Key.f11, min_mana=80)
+    m_training = MagicTraining(game, player, key=Key.f11, min_mana=90)
     game.add_task(m_training)
 
     food_eater = FoodEater(game, key=Key.f9)

@@ -4,7 +4,7 @@ import numpy
 import numpy as np
 from PIL.Image import Image
 
-from image.locator import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
+from game.status import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
 from state.state import StateManager, State
 
 

@@ -1,9 +1,13 @@
+from threading import Lock
+
 import attr
 import cv2
 import numpy as np
 from PIL.Image import Image
 
 from state.state import State
+
+lock = Lock()
 
 
 @attr.s(frozen=True, hash=True, eq=True)
@@ -14,32 +18,10 @@ class Position:
 
     @staticmethod
     def empty() -> 'Position':
-        if not Position.__empty:
-            Position.__empty = Position(0, 0)
+        with lock:
+            if not Position.__empty:
+                Position.__empty = Position(0, 0)
         return Position.__empty
-
-
-def locate_image(window_state: State[Image], image, precision=0.8):
-    if window_state.is_empty():
-        print("window state was empty")
-        return Position.empty()
-    img_rgb = np.array(window_state.value)
-    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread(image, 0)
-
-    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-    min_val, located_precision, min_loc, position = cv2.minMaxLoc(res)
-    if located_precision > precision:
-        return Position(position[0], position[1])
-    return Position.empty()
-
-
-def find_mana(window_state: State[Image]) -> Position:
-    return locate_image(window_state, 'image/mana.png')
-
-
-def find_health(window_state: State[Image]) -> Position:
-    return locate_image(window_state, 'image/health.png')
 
 
 @attr.s(slots=True)
@@ -62,9 +44,32 @@ class StatusLocation:
 
     @staticmethod
     def find(window_state: State[Image]):
-        mana_loc = find_mana(window_state)
-        health_loc = find_health(window_state)
+        mana_loc = StatusLocation.find_mana(window_state)
+        health_loc = StatusLocation.find_health(window_state)
         return StatusLocation(mana_loc, health_loc)
+
+    @staticmethod
+    def find_mana(window_state: State[Image]) -> Position:
+        return StatusLocation.locate_image(window_state, 'image/mana.png')
+
+    @staticmethod
+    def find_health(window_state: State[Image]) -> Position:
+        return StatusLocation.locate_image(window_state, 'image/health.png')
+
+    @staticmethod
+    def locate_image(window_state: State[Image], image, precision=0.8):
+        if window_state.is_empty():
+            print("window state was empty")
+            return Position.empty()
+        img_rgb = np.array(window_state.value)
+        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+        template = cv2.imread(image, 0)
+
+        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        min_val, located_precision, min_loc, position = cv2.minMaxLoc(res)
+        if located_precision > precision:
+            return Position(position[0], position[1])
+        return Position.empty()
 
 
 @attr.s(slots=True, frozen=True)

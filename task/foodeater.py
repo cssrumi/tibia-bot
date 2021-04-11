@@ -3,7 +3,7 @@ import time
 import attr
 import pynput
 
-from state.game import Game
+from game.game import Game
 from task.task import Task, StoppableThread
 
 
