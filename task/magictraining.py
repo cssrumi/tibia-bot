@@ -2,7 +2,7 @@ import attr
 import pynput
 import time
 
-from game import Game
+from state.game import Game
 from state.player import PlayerStateManager
 from task.task import Task, StoppableThread
 

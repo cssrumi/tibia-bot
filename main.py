@@ -1,6 +1,6 @@
 from pynput.keyboard import Key
 
-from game import Game
+from state.game import Game
 from state.player import PlayerStateManager
 from state.window import Window
 from task.foodeater import FoodEater
