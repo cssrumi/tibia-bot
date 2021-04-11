@@ -27,6 +27,7 @@ class PlayerStateManager(StateManager[Player]):
 
     def create_new_player(self, image: State[Image]) -> Player:
         value = cv2.cvtColor(numpy.array(image.value), cv2.COLOR_RGB2BGR)
+
         mx = self.status_location.mana_status_pos.x
         my = self.status_location.mana_status_pos.y
         mana_status = value[my:my + 1, mx:mx + StatusLocation.status_range]

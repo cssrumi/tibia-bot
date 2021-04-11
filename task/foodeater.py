@@ -11,7 +11,7 @@ from task.task import Task, StoppableThread
 class FoodEater(Task):
     game = attr.ib(init=True, type=Game)
     key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
-    delay = attr.ib(init=False, kw_only=True, type=float, default=5)
+    delay = attr.ib(init=False, kw_only=True, type=float, default=30)
 
     def _start(self):
         self.thread = StoppableThread(target=self._eat_food, args=(), daemon=True)
