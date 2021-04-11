@@ -22,7 +22,7 @@ class MagicTraining(Task):
     def _train(self):
         while not self.thread.stopped():
             player = self.psm.get().value
-            if self.game.is_active() and player and player.mana > self.min_mana:
+            if self.game.is_active() and player and player.mana >= self.min_mana:
                 self.keyboard.press(self.key)
                 self.keyboard.release(self.key)
                 if self.delay:
