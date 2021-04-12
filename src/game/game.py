@@ -4,7 +4,7 @@ import attr
 import win32gui
 from pynput.keyboard import Listener, Key
 
-from task.task import Task
+from task import Task
 
 
 @attr.s

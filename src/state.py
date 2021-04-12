@@ -3,7 +3,7 @@ from typing import TypeVar, Generic, Callable, List
 
 import attr
 
-from task.task import Task, StoppableThread
+from task import Task, StoppableThread
 
 T = TypeVar("T")
 
@@ -39,7 +39,7 @@ class StateManagerTask(Task, StateManager[T], Generic[T]):
     game = attr.ib(init=True)
     delay = attr.ib(init=True, type=float, default=0.1, kw_only=True)
 
-    def _start(self):
+    def _run(self):
         self.thread = StoppableThread(target=self.executor, args=(), daemon=True)
         self.thread.start()
 

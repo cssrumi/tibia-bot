@@ -2,7 +2,7 @@ import attr
 from PIL import ImageGrab
 from PIL.Image import Image
 
-from state.state import StateManagerTask
+from state import StateManagerTask
 
 
 @attr.s

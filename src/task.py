@@ -1,6 +1,6 @@
-import attr
 import threading
 
+import attr
 from pynput.keyboard import Controller
 
 
@@ -28,9 +28,10 @@ class Task:
     def start(self):
         if self.is_started():
             return
-        self._start()
+        self._run()
+        print(f"{self.__class__.__name__} started!")
 
-    def _start(self):
+    def _run(self):
         raise NotImplementedError()
 
     def is_started(self):

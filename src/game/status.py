@@ -5,9 +5,14 @@ import cv2
 import numpy as np
 from PIL.Image import Image
 
-from state.state import State
+from state import State
 
 lock = Lock()
+
+MANA_POSITION_IMAGE = '../image/mana.png'
+HEALTH_POSITION_IMAGE = '../image/health.png'
+MANA_STATUS_IMAGE = '../image/fullmana.png'
+HEALTH_STATUS_IMAGE = '../image/fullhealth.png'
 
 
 @attr.s(frozen=True, hash=True, eq=True)
@@ -50,11 +55,11 @@ class StatusLocation:
 
     @staticmethod
     def find_mana(window_state: State[Image]) -> Position:
-        return StatusLocation.locate_image(window_state, 'image/mana.png')
+        return StatusLocation.locate_image(window_state, MANA_POSITION_IMAGE)
 
     @staticmethod
     def find_health(window_state: State[Image]) -> Position:
-        return StatusLocation.locate_image(window_state, 'image/health.png')
+        return StatusLocation.locate_image(window_state, HEALTH_POSITION_IMAGE)
 
     @staticmethod
     def locate_image(window_state: State[Image], image, precision=0.8):
@@ -79,9 +84,9 @@ class StatusColor:
 
     @staticmethod
     def find():
-        mana = cv2.imread('image/fullmana.png', cv2.COLOR_RGB2BGR)
+        mana = cv2.imread(MANA_STATUS_IMAGE, cv2.COLOR_RGB2BGR)
         mc = mana[6, 2]
-        health = cv2.imread('image/fullhealth.png', cv2.COLOR_RGB2BGR)
+        health = cv2.imread(HEALTH_STATUS_IMAGE, cv2.COLOR_RGB2BGR)
         hc = health[6, 2]
         return StatusColor(mc, hc)
 

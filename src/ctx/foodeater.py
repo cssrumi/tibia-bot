@@ -4,7 +4,7 @@ import attr
 import pynput
 
 from game.game import Game
-from task.task import Task, StoppableThread
+from task import Task, StoppableThread
 
 
 @attr.s
@@ -13,7 +13,7 @@ class FoodEater(Task):
     key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
     delay = attr.ib(init=False, kw_only=True, type=float, default=30)
 
-    def _start(self):
+    def _run(self):
         self.thread = StoppableThread(target=self._eat_food, args=(), daemon=True)
         self.thread.start()
 
