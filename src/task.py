@@ -29,7 +29,7 @@ class Task:
         if self.is_started():
             return
         self._run()
-        print(f"{self.__class__.__name__} started!")
+        print(f"{self.name} started!")
 
     def _run(self):
         raise NotImplementedError()
