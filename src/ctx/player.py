@@ -6,7 +6,7 @@ from PIL.Image import Image
 
 from game.status import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
 from listener import Listener
-from state import StateManager, State
+from state import StateManager, State, T
 
 
 @attr.s(slots=True, frozen=True)
@@ -14,11 +14,17 @@ class Player:
     mana = attr.ib(default=None, init=True, type=int)
     health = attr.ib(default=None, init=True, type=int)
 
+    def is_healthy(self):
+        return self.health > 95
+
 
 @attr.s
 class PlayerStateManager(StateManager[Player]):
     status_location = attr.ib(type=StatusLocation, init=False, default=None)
     status_color = attr.ib(type=StatusColor, default=DEFAULT_STATUS_COLOR, kw_only=True)
+
+    def get(self) -> State[Player]:
+        return super().get()
 
     def init_status_location(self, state: State[Image]):
         if state.is_empty():

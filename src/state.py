@@ -27,7 +27,7 @@ class StateManager(Generic[T]):
     def update(self, new_value: T) -> T:
         self._state.value = new_value
         [listener(self._state) for listener in self.listeners]
-        print(f"{self.__class__.__name__} state updated")
+        # print(f"{self.__class__.__name__} state updated")
         return new_value
 
     def add_update_listener(self, listener: Callable[[State[T]], None]):

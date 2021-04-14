@@ -27,7 +27,7 @@ class Caster(Task):
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
     priority = attr.ib(type=int, default=-100, kw_only=True)
-    delay = attr.ib(type=float, default=0.2, kw_only=True)
+    delay = attr.ib(type=float, default=0.4, kw_only=True)
 
     def __attrs_post_init__(self):
         self.cast_list = sorted(self.cast_list, key=lambda c: (c.priority, c.min_health, c.min_mana))
@@ -40,13 +40,13 @@ class Caster(Task):
         while not self.thread.stopped():
             player: Player = self.psm.get().value
             if not self.game.is_active() or not player:
-                time.sleep(0.1)
+                time.sleep(self.delay)
                 continue
             for cast in self.cast_list:
                 if not cast.should_cast(player):
                     continue
                 self.keyboard.press(cast.key)
                 self.keyboard.release(cast.key)
-                if self.delay:
-                    time.sleep(self.delay)
+                if cast.cooldown:
+                    time.sleep(cast.cooldown)
                 break
