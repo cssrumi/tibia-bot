@@ -3,10 +3,10 @@ from typing import List
 import attr
 from pynput.keyboard import Controller
 
-from cast import Cast, Caster
+from domain.cast import Cast, Caster
 from ctx.player import PlayerStateManager, Player
-from game.game import Game
-from task import Task
+from domain.game.game import Game
+from domain.task import Task
 
 
 @attr.s
@@ -23,7 +23,7 @@ class Potion(Cast):
 
 
 @attr.s
-class Healer(Task):
+class HealerTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     spells = attr.ib(type=List[Spell])

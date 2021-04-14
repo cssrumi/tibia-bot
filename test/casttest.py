@@ -1,6 +1,6 @@
 from pynput.keyboard import Key
 
-from cast import Cast
+from domain.cast import Cast
 from ctx.player import Player
 
 cast = Cast(Key.f1, min_health=50, min_mana=100)

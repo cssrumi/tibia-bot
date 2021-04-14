@@ -7,10 +7,10 @@ import win32gui
 from pywinauto import Application
 
 from ctx.player import PlayerStateManager
-from ctx.window import Window
-from game.game import Game
-from game.locate import locate_image, Position, image_center
-from task import Task, StoppableThread
+from ctx.window import WindowStateManagerTask
+from domain.game.game import Game
+from domain.game.locate import locate_image, Position, image_center
+from domain.task import Task, StoppableThread
 
 
 GP_IMAGE = '../image/100gp.png'
@@ -21,7 +21,7 @@ MARGIN = Position(0, 20)
 class ExchangeTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
-    wsm = attr.ib(type=Window)
+    wsm = attr.ib(type=WindowStateManagerTask)
     app = attr.ib(kw_only=True, type=Application, factory=Application)
     exchange_img = attr.ib(kw_only=True, type=str, default=GP_IMAGE)
     exchange_img_center = attr.ib(init=False, type=Position)

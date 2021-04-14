@@ -4,9 +4,9 @@ import numpy
 import numpy as np
 from PIL.Image import Image
 
-from game.status import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
-from listener import Listener
-from state import StateManager, State, T
+from domain.game.status import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
+from domain.listener import Listener
+from domain.state import StateManager, State
 
 
 @attr.s(slots=True, frozen=True)

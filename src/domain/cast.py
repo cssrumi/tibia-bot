@@ -5,8 +5,8 @@ import attr
 from pynput.keyboard import Key
 
 from ctx.player import PlayerStateManager, Player
-from game.game import Game
-from task import Task, StoppableThread
+from domain.game.game import Game
+from domain.task import Task, StoppableThread
 
 
 @attr.s(slots=True)

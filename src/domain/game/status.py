@@ -2,8 +2,8 @@ import attr
 import cv2
 from PIL.Image import Image
 
-from game.locate import Position, locate_image
-from state import State
+from domain.game.locate import Position, locate_image
+from domain.state import State
 
 MANA_POSITION_IMAGE = '../image/mana.png'
 HEALTH_POSITION_IMAGE = '../image/health.png'

@@ -3,7 +3,7 @@ from typing import TypeVar, Generic, Callable, List
 
 import attr
 
-from task import Task, StoppableThread
+from domain.task import Task, StoppableThread
 
 T = TypeVar("T")
 

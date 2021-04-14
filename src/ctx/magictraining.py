@@ -4,12 +4,12 @@ import attr
 import pynput
 
 from ctx.player import PlayerStateManager
-from game.game import Game
-from task import Task, StoppableThread
+from domain.game.game import Game
+from domain.task import Task, StoppableThread
 
 
 @attr.s
-class MagicTraining(Task):
+class MagicTrainingTask(Task):
     game = attr.ib(init=True, type=Game)
     psm = attr.ib(init=True, type=PlayerStateManager)
     key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)

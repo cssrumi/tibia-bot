@@ -3,12 +3,12 @@ import time
 import attr
 import pynput
 
-from game.game import Game
-from task import Task, StoppableThread
+from domain.game.game import Game
+from domain.task import Task, StoppableThread
 
 
 @attr.s
-class FoodEater(Task):
+class FoodEaterTask(Task):
     game = attr.ib(init=True, type=Game)
     key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
     delay = attr.ib(init=False, kw_only=True, type=float, default=30)

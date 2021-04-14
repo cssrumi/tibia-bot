@@ -1,23 +1,23 @@
 from pynput.keyboard import Key
 
 from ctx.exchange import ExchangeTask
-from ctx.foodeater import FoodEater
-from ctx.healer import Healer, Spell, Potion
-from ctx.magictraining import MagicTraining
+from ctx.foodeater import FoodEaterTask
+from ctx.healer import HealerTask, Spell, Potion
+from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
-from ctx.window import Window
-from game.game import Game
+from ctx.window import WindowStateManagerTask
+from domain.game.game import Game
 
 
 def functional_scala():
     game = Game('Tibia - Functional Scala')
 
-    window = Window(game, delay=0)
-    game.add_task(window)
+    wsmt = WindowStateManagerTask(game, delay=0)
+    game.add_task(wsmt)
 
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
-    window.add_update_listener(pil.update_listener)
+    wsmt.add_update_listener(pil.update_listener)
 
     spells = [Spell(Key.f1, min_mana=10, min_health=90)]
     potions = [
@@ -26,17 +26,17 @@ def functional_scala():
         Potion(Key.f6, min_health=40),
         Potion(Key.f7, min_health=20),
     ]
-    healer = Healer(game, psm, spells=spells, potions=potions)
-    game.add_task(healer)
+    ht = HealerTask(game, psm, spells=spells, potions=potions)
+    game.add_task(ht)
 
-    gp_exchange = ExchangeTask(game, psm, window)
-    game.add_task(gp_exchange)
+    et = ExchangeTask(game, psm, wsmt)
+    game.add_task(et)
 
-    m_training = MagicTraining(game, psm, key=Key.f11, min_mana=90)
-    game.add_task(m_training)
+    mtt = MagicTrainingTask(game, psm, key=Key.f11, min_mana=90)
+    game.add_task(mtt)
 
-    food_eater = FoodEater(game, key=Key.f9)
-    game.add_task(food_eater)
+    fet = FoodEaterTask(game, key=Key.f9)
+    game.add_task(fet)
 
     return game
 
@@ -44,18 +44,32 @@ def functional_scala():
 def deidara():
     game = Game('Tibia - Deidara')
 
-    window = Window(game, delay=0)
-    game.add_task(window)
+    wsmt = WindowStateManagerTask(game, delay=0)
+    game.add_task(wsmt)
 
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
-    window.add_update_listener(pil.update_listener)
+    wsmt.add_update_listener(pil.update_listener)
 
-    m_training = MagicTraining(game, psm, key=Key.f2, min_mana=90)
-    game.add_task(m_training)
+    spells = [
+        Spell(Key.f1, min_mana=1, min_health=90),
+        Spell(Key.f2, min_mana=3, min_health=60),
+        Spell(Key.f3, min_mana=8, min_health=40),
+    ]
+    potions = [
+        Potion(Key.f4, min_mana=70)
+    ]
+    ht = HealerTask(game, psm, spells=spells, potions=potions)
+    game.add_task(ht)
 
-    food_eater = FoodEater(game, key=Key.f9)
-    game.add_task(food_eater)
+    mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=85)
+    game.add_task(mtt)
+
+    et = ExchangeTask(game, psm, wsmt)
+    game.add_task(et)
+
+    fet = FoodEaterTask(game, key=Key.f9)
+    game.add_task(fet)
 
     return game
 
