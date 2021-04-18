@@ -57,7 +57,7 @@ class ExchangeTask(Task):
             if player_state.is_empty() or not player_state.value.is_healthy():
                 time.sleep(1)
                 continue
-            cash = locate_image(state, self.exchange_img)
+            cash = locate_image(state, self.exchange_img, precision=0.9)
             if cash is not Position.empty():
                 pos_to_click = cash.add(self.exchange_img_center).minus(MARGIN)
                 self.app.window().click(button='right', coords=pos_to_click.tuple())

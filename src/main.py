@@ -52,9 +52,9 @@ def deidara():
     wsmt.add_update_listener(pil.update_listener)
 
     spells = [
-        Spell(Key.f1, min_mana=1, min_health=90),
-        Spell(Key.f2, min_mana=3, min_health=60),
-        Spell(Key.f3, min_mana=8, min_health=40),
+        Spell(Key.f1, min_mana=1, min_health=92),
+        Spell(Key.f2, min_mana=2, min_health=65),
+        Spell(Key.f3, min_mana=6, min_health=50),
     ]
     potions = [
         Potion(Key.f4, min_mana=70)
@@ -64,6 +64,8 @@ def deidara():
 
     mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=85)
     game.add_task(mtt)
+    # mana_burn = MagicTrainingTask(game, psm, key='i', min_mana=50)
+    # game.add_task(mana_burn)
 
     et = ExchangeTask(game, psm, wsmt)
     game.add_task(et)
