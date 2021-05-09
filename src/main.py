@@ -5,6 +5,7 @@ from ctx.foodeater import FoodEaterTask
 from ctx.healer import HealerTask, Spell, Potion
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
+from ctx.stoneskin import StoneSkinTask
 from ctx.window import WindowStateManagerTask
 from domain.game.game import Game
 
@@ -52,9 +53,9 @@ def deidara():
     wsmt.add_update_listener(pil.update_listener)
 
     spells = [
-        Spell(Key.f1, min_mana=1, min_health=92),
-        Spell(Key.f2, min_mana=2, min_health=65),
-        Spell(Key.f3, min_mana=6, min_health=50),
+        Spell(Key.f1, min_mana=1, min_health=95),
+        Spell(Key.f2, min_mana=2, min_health=70),
+        Spell(Key.f3, min_mana=6, min_health=55),
     ]
     potions = [
         Potion(Key.f4, min_mana=70)
@@ -76,9 +77,45 @@ def deidara():
     return game
 
 
+def paler():
+    game = Game('Tibia - Paler')
+
+    wsmt = WindowStateManagerTask(game, delay=0)
+    game.add_task(wsmt)
+
+    psm = PlayerStateManager()
+    pil = PlayerImageListener(psm)
+    wsmt.add_update_listener(pil.update_listener)
+
+    spells = [
+        Spell(Key.f1, min_mana=3, min_health=92),
+        Spell(Key.f2, min_mana=6, min_health=87),
+        Spell(Key.f3, min_mana=10, min_health=75),
+    ]
+    potions = [
+        Potion(Key.f4, min_mana=70, priority=1),
+        Potion(Key.f5, min_health=70, min_mana=70, priority=2),
+        Potion(Key.f6, min_health=85),
+    ]
+    ht = HealerTask(game, psm, spells=spells, potions=potions)
+    game.add_task(ht)
+
+    sst = StoneSkinTask(game, psm, key=Key.f12, equip_at=25)
+    game.add_task(sst)
+
+    mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=85)
+    game.add_task(mtt)
+
+    fet = FoodEaterTask(game, key=Key.f9)
+    game.add_task(fet)
+
+    return game
+
+
 def main():
     # game = functional_scala()
-    game = deidara()
+    # game = deidara()
+    game = paler()
     game.start_all()
     game.await_exit()
 
