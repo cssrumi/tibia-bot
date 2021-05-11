@@ -14,8 +14,8 @@ lock = Lock()
 @attr.s(frozen=True, hash=True, eq=True)
 class Position:
     __empty = None
-    x = attr.ib(init=True, type=int, converter=int)
-    y = attr.ib(init=True, type=int, converter=int)
+    x = attr.ib(type=int, converter=int)
+    y = attr.ib(type=int, converter=int)
 
     def add(self, other: 'Position'):
         return Position(self.x + other.x, self.y + other.y)

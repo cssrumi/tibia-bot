@@ -9,8 +9,8 @@ from domain.task import Task, StoppableThread
 
 @attr.s
 class FoodEaterTask(Task):
-    game = attr.ib(init=True, type=Game)
-    key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
+    game = attr.ib(type=Game)
+    key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
     delay = attr.ib(init=False, kw_only=True, type=float, default=30)
 
     def _run(self):

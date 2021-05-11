@@ -36,8 +36,8 @@ class StateManager(Generic[T]):
 
 @attr.s
 class StateManagerTask(Task, StateManager[T], Generic[T]):
-    game = attr.ib(init=True)
-    delay = attr.ib(init=True, type=float, default=0.1, kw_only=True)
+    game = attr.ib()
+    delay = attr.ib(type=float, default=0.1, kw_only=True)
 
     def _run(self):
         self.thread = StoppableThread(target=self.executor, args=(), daemon=True)

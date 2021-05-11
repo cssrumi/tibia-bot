@@ -1,6 +1,3 @@
-import time
-from functools import wraps
-from multiprocessing import Lock
 from typing import Callable
 
 import attr
@@ -14,8 +11,7 @@ from ctx.player import PlayerStateManager, Player
 from domain.game.game import Game
 from domain.game.locate import Position, locate_image
 from domain.listener import Listener
-from domain.state import StateManager, State, T
-from domain.task import Task, StoppableThread
+from domain.state import StateManager, State
 
 Equipped = bool
 STONE_SKIN_ON_IMAGE = '../image/stoneskinon.png'
@@ -54,6 +50,7 @@ class StoneSkinStateManager(StateManager[Equipped]):
                 rv = func(self, *args, **kwargs)
                 self.is_processing = False
                 return rv
+
             return wrapper
 
     def get(self) -> State[Equipped]:
@@ -73,7 +70,7 @@ class StoneSkinStateManager(StateManager[Equipped]):
         dx = self.stone_skin_location.width
         dy = self.stone_skin_location.height
 
-        to_check = image[ssy:ssy+dy, ssx:ssx+dx]
+        to_check = image[ssy:ssy + dy, ssx:ssx + dx]
         return cv2.matchTemplate(to_check, self.verifier, cv2.TM_CCOEFF_NORMED) == 1
 
     def is_equipped(self):
@@ -84,19 +81,23 @@ class StoneSkinStateManager(StateManager[Equipped]):
 class StoneSkinInvoker:
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
-    key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
+    key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
     equip_at = attr.ib(type=int)
     keyboard = attr.ib(default=Controller(), type=Controller, init=False, kw_only=True)
-    delay = attr.ib(type=float, default=0.2, kw_only=True)
+    skip_cycle = attr.ib(type=int, default=2, kw_only=True)
+    invoke_count = attr.ib(type=int, default=0, init=False)
 
     def invoke(self, is_equipped: bool):
         player: Player = self.psm.get().value
         if not self.game.is_active() or not player:
             return
+        if self.invoke_count < self.skip_cycle:
+            self.invoke_count += 1
+            return
         if player.health < self.equip_at and not is_equipped:
             self.keyboard.press(self.key)
             self.keyboard.release(self.key)
-            time.sleep(self.delay)
+            self.invoke_count = 0
 
 
 @attr.s
@@ -112,4 +113,3 @@ class StoneSkinListener(Listener[Image]):
         equipped = self.sssm.check_state(state)
         self.sssm.update(equipped)
         self.ssi.invoke(equipped)
-

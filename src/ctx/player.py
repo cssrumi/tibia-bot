@@ -11,8 +11,8 @@ from domain.state import StateManager, State
 
 @attr.s(slots=True, frozen=True)
 class Player:
-    mana = attr.ib(default=None, init=True, type=int)
-    health = attr.ib(default=None, init=True, type=int)
+    mana = attr.ib(default=None, type=int)
+    health = attr.ib(default=None, type=int)
 
     def is_healthy(self):
         return self.health > 95
@@ -49,7 +49,7 @@ class PlayerStateManager(StateManager[Player]):
 
 @attr.s
 class PlayerImageListener(Listener[Image]):
-    psm = attr.ib(type=PlayerStateManager, init=True)
+    psm = attr.ib(type=PlayerStateManager)
 
     def update_listener(self, state: State[Image]) -> None:
         if not self.psm.status_location:

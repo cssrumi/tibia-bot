@@ -9,7 +9,7 @@ from domain.task import Task
 
 @attr.s
 class Game:
-    name = attr.ib(default='Tibia', type=str, init=True, kw_only=False)
+    name = attr.ib(default='Tibia', type=str, kw_only=False)
     tasks = attr.ib(init=False, type=List[Task], factory=list)
     exit_key = attr.ib(init=False, default=Key.pause, kw_only=True)
     exit_listener = attr.ib(init=False)

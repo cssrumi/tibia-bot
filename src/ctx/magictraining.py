@@ -10,11 +10,11 @@ from domain.task import Task, StoppableThread
 
 @attr.s
 class MagicTrainingTask(Task):
-    game = attr.ib(init=True, type=Game)
-    psm = attr.ib(init=True, type=PlayerStateManager)
-    key = attr.ib(init=True, type=pynput.keyboard.Key, kw_only=True)
-    min_mana = attr.ib(init=True, kw_only=True, type=int)
-    min_health = attr.ib(init=True, kw_only=True, type=int, default=100)
+    game = attr.ib(type=Game)
+    psm = attr.ib(type=PlayerStateManager)
+    key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
+    min_mana = attr.ib(kw_only=True, type=int)
+    min_health = attr.ib(kw_only=True, type=int, default=100)
     delay = attr.ib(init=False, kw_only=True, type=float, default=1)
 
     def _run(self):

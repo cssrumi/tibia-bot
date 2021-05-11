@@ -100,8 +100,11 @@ def paler():
     ht = HealerTask(game, psm, spells=spells, potions=potions)
     game.add_task(ht)
 
-    # sst = StoneSkinTask(game, psm, key=Key.f12, equip_at=30)
-    # game.add_task(sst)
+    sssm = StoneSkinStateManager()
+    ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30, skip_cycle=2)
+
+    ssl = StoneSkinListener(sssm, ssi)
+    wsmt.add_update_listener(ssl.update_listener)
 
     mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=90)
     game.add_task(mtt)
@@ -136,8 +139,8 @@ def paler_ss_test():
 def main():
     # game = functional_scala()
     # game = deidara()
-    # game = paler()
-    game = paler_ss_test()
+    game = paler()
+    # game = paler_ss_test()
     game.start_all()
     game.await_exit()
 

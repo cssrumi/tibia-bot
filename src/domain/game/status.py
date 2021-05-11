@@ -16,8 +16,8 @@ class StatusLocation:
     status_range = 90
     status_x_offset = 16
     status_y_offset = 6
-    mana_pos = attr.ib(type=Position, init=True)
-    health_pos = attr.ib(type=Position, init=True)
+    mana_pos = attr.ib(type=Position)
+    health_pos = attr.ib(type=Position)
     mana_status_pos = attr.ib(type=Position, default=None)
     health_status_pos = attr.ib(type=Position, default=None)
 
@@ -46,8 +46,8 @@ class StatusLocation:
 
 @attr.s(slots=True, frozen=True)
 class StatusColor:
-    mana_color = attr.ib(init=True)
-    health_color = attr.ib(init=True)
+    mana_color = attr.ib()
+    health_color = attr.ib()
 
     @staticmethod
     def find():

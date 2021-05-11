@@ -9,7 +9,7 @@ T = TypeVar("T")
 
 @attr.s
 class Listener(Generic[T]):
-    priority = attr.ib(type=int, default=0, kw_only=True, init=True)
+    priority = attr.ib(type=int, default=0, kw_only=True)
 
     def update_listener(self, state: State[T]) -> None:
         raise NotImplementedError()
