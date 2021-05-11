@@ -5,7 +5,7 @@ from ctx.foodeater import FoodEaterTask
 from ctx.healer import HealerTask, Spell, Potion
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
-from ctx.stoneskin import StoneSkinTask
+from ctx.stoneskin import StoneSkinStateManager, StoneSkinListener, StoneSkinInvoker
 from ctx.window import WindowStateManagerTask
 from domain.game.game import Game
 
@@ -93,21 +93,42 @@ def paler():
         Spell(Key.f3, min_mana=10, min_health=75),
     ]
     potions = [
-        Potion(Key.f4, min_mana=70, priority=1),
-        Potion(Key.f5, min_health=70, min_mana=70, priority=2),
+        Potion(Key.f4, min_mana=70),
+        Potion(Key.f5, min_health=70, priority=-1),
         Potion(Key.f6, min_health=85),
     ]
     ht = HealerTask(game, psm, spells=spells, potions=potions)
     game.add_task(ht)
 
-    sst = StoneSkinTask(game, psm, key=Key.f12, equip_at=25)
-    game.add_task(sst)
+    # sst = StoneSkinTask(game, psm, key=Key.f12, equip_at=30)
+    # game.add_task(sst)
 
-    mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=85)
+    mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=90)
     game.add_task(mtt)
 
     fet = FoodEaterTask(game, key=Key.f9)
     game.add_task(fet)
+
+    et = ExchangeTask(game, psm, wsmt)
+    game.add_task(et)
+
+    return game
+
+
+def paler_ss_test():
+    game = Game('Tibia - Paler')
+
+    wsmt = WindowStateManagerTask(game, delay=0)
+    game.add_task(wsmt)
+
+    psm = PlayerStateManager()
+    pil = PlayerImageListener(psm)
+    wsmt.add_update_listener(pil.update_listener)
+
+    sssm = StoneSkinStateManager()
+    ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=100)
+    ssl = StoneSkinListener(sssm, ssi)
+    wsmt.add_update_listener(ssl.update_listener)
 
     return game
 
@@ -115,7 +136,8 @@ def paler():
 def main():
     # game = functional_scala()
     # game = deidara()
-    game = paler()
+    # game = paler()
+    game = paler_ss_test()
     game.start_all()
     game.await_exit()
 

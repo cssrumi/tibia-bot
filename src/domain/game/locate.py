@@ -26,6 +26,9 @@ class Position:
     def tuple(self) -> Tuple[int, int]:
         return self.x, self.y
 
+    def is_empty(self):
+        return True if self == Position.empty() else False
+
     @staticmethod
     def empty() -> 'Position':
         with lock:
