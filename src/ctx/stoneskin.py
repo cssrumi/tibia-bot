@@ -50,7 +50,6 @@ class StoneSkinStateManager(StateManager[Equipped]):
                 rv = func(self, *args, **kwargs)
                 self.is_processing = False
                 return rv
-
             return wrapper
 
     def get(self) -> State[Equipped]:
@@ -104,6 +103,18 @@ class StoneSkinInvoker:
 class StoneSkinListener(Listener[Image]):
     sssm = attr.ib(type=StoneSkinStateManager)
     ssi = attr.ib(type=StoneSkinInvoker)
+    skip_cycle = attr.ib(type=int, default=2, kw_only=True)
+    invoke_count = attr.ib(type=int, default=0, init=False)
+
+    class Decorator:
+        def skip_cycle(func: Callable, default=None):
+            def wrapper(self, *args, **kwargs):
+                if self.invoke_count < self.skip_cycle:
+                    self.invoke_count += 1
+                    return default
+                self.invoke_count = 0
+                return func(self, *args, **kwargs)
+            return wrapper
 
     def update_listener(self, state: State[Image]) -> None:
         if not self.sssm.stone_skin_location:
