@@ -12,6 +12,9 @@ T = TypeVar("T")
 class State(Generic[T]):
     value = attr.ib(type=T, default=None)
 
+    def get(self):
+        return self.value
+
     def is_empty(self) -> bool:
         return not bool(self.value)
 

@@ -7,7 +7,7 @@ from ctx.foodeater import FoodEaterTask
 from ctx.healer import HealerTask, Spell, Potion
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
-from ctx.stoneskin import StoneSkinStateManager, StoneSkinListener, StoneSkinInvoker
+from ctx.stoneskin import StoneSkinStateManager, StoneSkinImageListener, StoneSkinInvoker
 from ctx.window import WindowStateManagerTask
 from domain.game.game import Game
 
@@ -121,9 +121,10 @@ def paler(heavy=False):
     game.add_task(ht)
 
     sssm = StoneSkinStateManager()
-    ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30, skip_cycle=2)
+    ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)
+    sssm.add_update_listener(lambda state: ssi.invoke(state.value))
 
-    ssl = StoneSkinListener(sssm, ssi)
+    ssl = StoneSkinImageListener(sssm, ssi)
     wsmt.add_update_listener(ssl.update_listener)
 
     mtt = MagicTrainingTask(game, psm, key=Key.f2, min_mana=90)
@@ -150,7 +151,8 @@ def paler_ss_test():
 
     sssm = StoneSkinStateManager()
     ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=100)
-    ssl = StoneSkinListener(sssm, ssi)
+    sssm.add_update_listener(lambda state: ssi.invoke(state.value))
+    ssl = StoneSkinImageListener(sssm)
     wsmt.add_update_listener(ssl.update_listener)
 
     return game

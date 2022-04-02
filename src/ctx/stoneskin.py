@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Callable
 
 import attr
@@ -50,6 +51,7 @@ class StoneSkinStateManager(StateManager[Equipped]):
                 rv = func(self, *args, **kwargs)
                 self.is_processing = False
                 return rv
+
             return wrapper
 
     def get(self) -> State[Equipped]:
@@ -83,38 +85,29 @@ class StoneSkinInvoker:
     key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
     equip_at = attr.ib(type=int)
     keyboard = attr.ib(default=Controller(), type=Controller, init=False, kw_only=True)
-    skip_cycle = attr.ib(type=int, default=2, kw_only=True)
-    invoke_count = attr.ib(type=int, default=0, init=False)
+    delay = attr.ib(default=200, type=int, kw_only=True)
+    last_invocation = attr.ib(default=0, type=int, init=False)
 
-    def invoke(self, is_equipped: bool):
+    def invoke(self, is_equipped: bool) -> None:
         player: Player = self.psm.get().value
         if not self.game.is_active() or not player:
             return
-        if self.invoke_count < self.skip_cycle:
-            self.invoke_count += 1
+        now_in_millis = StoneSkinInvoker._now_in_millis()
+        if self.last_invocation + self.delay > now_in_millis:
             return
         if player.health < self.equip_at and not is_equipped:
             self.keyboard.press(self.key)
             self.keyboard.release(self.key)
-            self.invoke_count = 0
+            self.last_invocation = now_in_millis
+
+    @staticmethod
+    def _now_in_millis():
+        return int(datetime.now().timestamp() * 1000)
 
 
 @attr.s
-class StoneSkinListener(Listener[Image]):
+class StoneSkinImageListener(Listener[Image]):
     sssm = attr.ib(type=StoneSkinStateManager)
-    ssi = attr.ib(type=StoneSkinInvoker)
-    skip_cycle = attr.ib(type=int, default=2, kw_only=True)
-    invoke_count = attr.ib(type=int, default=0, init=False)
-
-    class Decorator:
-        def skip_cycle(func: Callable, default=None):
-            def wrapper(self, *args, **kwargs):
-                if self.invoke_count < self.skip_cycle:
-                    self.invoke_count += 1
-                    return default
-                self.invoke_count = 0
-                return func(self, *args, **kwargs)
-            return wrapper
 
     def update_listener(self, state: State[Image]) -> None:
         if not self.sssm.stone_skin_location:
@@ -123,4 +116,3 @@ class StoneSkinListener(Listener[Image]):
             return
         equipped = self.sssm.check_state(state)
         self.sssm.update(equipped)
-        self.ssi.invoke(equipped)
