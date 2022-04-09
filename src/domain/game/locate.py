@@ -3,6 +3,7 @@ from typing import Tuple
 
 import attr
 import cv2
+import numpy
 import numpy as np
 from PIL.Image import Image
 
@@ -37,19 +38,31 @@ class Position:
         return Position.__empty
 
 
-def locate_image(window_state: State[Image], image, precision=0.8):
+def locate_image(window_state: State[Image], image, precision=0.8, start=True):
     if window_state.is_empty():
         print("window state was empty")
         return Position.empty()
     img_rgb = np.array(window_state.value)
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread(image, 0)
+    template = load_image(image)
 
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     min_val, located_precision, min_loc, position = cv2.minMaxLoc(res)
     if located_precision > precision:
-        return Position(position[0], position[1])
+        if start:
+            return Position(position[0], position[1])
+        else:
+            shape = template.shape
+            return Position(position[0] + shape[0], position[1] + shape[1])
     return Position.empty()
+
+
+def load_image(image) -> numpy.ndarray:
+    if isinstance(image, numpy.ndarray):
+        return image
+    if isinstance(image, str):
+        return cv2.imread(image, 0)
+    raise RuntimeError("Unable to load image of type:" + type(image))
 
 
 def image_center(image: str) -> Position:
