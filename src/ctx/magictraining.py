@@ -17,6 +17,9 @@ class MagicTrainingTask(Task):
     min_health = attr.ib(kw_only=True, type=int, default=100)
     delay = attr.ib(init=False, kw_only=True, type=float, default=1)
 
+    def __attrs_post_init__(self):
+        self.game.add_task(self)
+
     def _run(self):
         self.thread = StoppableThread(target=self._train, args=(), daemon=True)
         self.thread.start()

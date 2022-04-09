@@ -29,6 +29,9 @@ class ExchangeTask(Task):
     _is_connected = attr.ib(init=False, type=bool, default=False)
 
     def __attrs_post_init__(self):
+        self.game.add_task(self)
+
+    def __attrs_post_init__(self):
         self.exchange_img_center = image_center(self.exchange_img)
 
     def _run(self):

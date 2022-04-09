@@ -35,6 +35,7 @@ class HealerTask(Task):
     def __attrs_post_init__(self):
         self._spell_caster = Caster(self.game, self.psm, self.spells)
         self._potion_caster = Caster(self.game, self.psm, self.potions)
+        self.game.add_task(self)
 
     def _run(self):
         self._spell_caster.start()
