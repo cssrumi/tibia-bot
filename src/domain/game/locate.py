@@ -27,7 +27,7 @@ class Position:
         return self.x, self.y
 
     def is_empty(self):
-        return True if self == Position.empty() else False
+        return self == Position.empty()
 
     @staticmethod
     def empty() -> 'Position':

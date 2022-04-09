@@ -58,7 +58,7 @@ class ExchangeTask(Task):
                 time.sleep(1)
                 continue
             cash = locate_image(state, self.exchange_img, precision=0.9)
-            if cash is not Position.empty():
+            if not cash.is_empty():
                 pos_to_click = cash.add(self.exchange_img_center).minus(MARGIN)
                 self.app.window().click(button='right', coords=pos_to_click.tuple())
                 time.sleep(self.delay)
