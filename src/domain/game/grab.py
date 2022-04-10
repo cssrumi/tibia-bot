@@ -90,6 +90,6 @@ class ApplicationGrabberFacade(ApplicationGrabber):
 
 
 def create_grabber(game: Game):
-    return ApplicationGrabberFacade(game)
+    # return ApplicationGrabberFacade(game)
     # return PilApplicationGrabber(game.name)
-    # return self.grabber = Win32ApplicationGrabber(game.name)
+    return Win32ApplicationGrabber(game.name)

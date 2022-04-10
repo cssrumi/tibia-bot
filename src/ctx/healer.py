@@ -1,10 +1,9 @@
 from typing import List
 
 import attr
-from pynput.keyboard import Controller
 
-from domain.cast import Cast, Caster
 from ctx.player import PlayerStateManager, Player
+from domain.cast import Cast, Caster
 from domain.game.game import Game
 from domain.task import Task
 
@@ -31,7 +30,6 @@ class HealerTask(Task):
     psm = attr.ib(type=PlayerStateManager)
     spells = attr.ib(type=List[Spell])
     potions = attr.ib(type=List[Potion])
-    controller = attr.ib(type=Controller, factory=Controller, kw_only=True)
     _spell_caster = attr.ib(type=Caster, init=False)
     _potion_caster = attr.ib(type=Caster, init=False)
 

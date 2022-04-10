@@ -1,8 +1,8 @@
 import time
 
 import attr
-import pynput
 
+from domain.game.control import Key
 from domain.game.game import Game
 from domain.task import Task, StoppableThread
 
@@ -10,7 +10,7 @@ from domain.task import Task, StoppableThread
 @attr.s
 class FoodEaterTask(Task):
     game = attr.ib(type=Game)
-    key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
+    key = attr.ib(type=Key, kw_only=True)
     delay = attr.ib(init=False, kw_only=True, type=float, default=30)
 
     def __attrs_post_init__(self):
@@ -22,8 +22,7 @@ class FoodEaterTask(Task):
 
     def _eat_food(self):
         while not self.thread.stopped():
-            if self.game.is_active():
-                self.keyboard.press(self.key)
-                self.keyboard.release(self.key)
+            if self.game.is_connected():
+                self.game.controller.press(self.key)
                 time.sleep(self.delay)
             time.sleep(0.5)

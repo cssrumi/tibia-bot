@@ -6,6 +6,7 @@ from pywinauto import Application
 
 from ctx.player import PlayerStateManager
 from ctx.window import WindowStateManagerTask
+from domain.game.control import MouseButtons
 from domain.game.game import Game
 from domain.game.locate import locate_image, Position, image_center, load_image
 from domain.task import Task, StoppableThread
@@ -38,7 +39,7 @@ class ExchangeTask(Task):
     def _exchange(self):
         while not self.thread.stopped():
             state = self.wsm.get()
-            if not self.game.is_active() or state.is_empty() or not self.game.is_connected():
+            if not self.game.is_connected() or state.is_empty():
                 time.sleep(1)
                 continue
             player_state = self.psm.get()
@@ -48,6 +49,6 @@ class ExchangeTask(Task):
             cash = locate_image(state, self._exchange_img, precision=0.92)
             if not cash.is_empty():
                 pos_to_click = cash.add(self.exchange_img_center).minus(MARGIN)
-                self.app.window().click(button='right', coords=pos_to_click.tuple())
+                self.game.controller.click(MouseButtons.RIGHT, pos_to_click)
                 time.sleep(self.delay)
                 print("Cash exchanged!")

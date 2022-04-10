@@ -3,10 +3,11 @@ from itertools import cycle
 from typing import List
 
 import attr
-from pynput.keyboard import Key, Listener
+from pynput.keyboard import Key as PPKey, Listener
 
 from ctx.player import PlayerStateManager, Player
 from domain.cast import Cast
+from domain.game.control import Key
 from domain.game.game import Game
 from domain.task import Task, StoppableThread
 
@@ -50,15 +51,15 @@ class ComboCaster(Task):
     def _combo(self):
         while not self.thread.stopped():
             player: Player = self.psm.get().value
-            if not self.game.is_active() or not player or self.is_stopped:
+            if not self.game.is_connected() or not player or self.is_stopped:
                 time.sleep(self.delay)
                 continue
             for cast in cycle(self.cast_list):
                 if self.is_stopped:
                     break
                 if cast.should_cast(player):
-                    self.keyboard.press(cast.key)
-                    self.keyboard.release(cast.key)
+                    controller = self.game.controller
+                    controller.press(cast.key)
                 if cast.cooldown:
                     time.sleep(cast.cooldown)
                 if self.delay:
@@ -89,8 +90,8 @@ class ComboSwitch(Task):
         if self._listener:
             self._listener.stop()
 
-    def _on_release(self, key: Key):
-        if key == self.key:
+    def _on_release(self, key: PPKey):
+        if key == self.key.pynput_key:
             self.combo_caster.switch()
             off_on = "off" if self.combo_caster.is_stopped else "on"
             print("combo turn", off_on)

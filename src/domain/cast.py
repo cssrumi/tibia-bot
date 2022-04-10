@@ -2,9 +2,9 @@ import time
 from typing import List
 
 import attr
-from pynput.keyboard import Key
 
 from ctx.player import PlayerStateManager, Player
+from domain.game.control import Key
 from domain.game.game import Game
 from domain.task import Task, StoppableThread
 
@@ -38,14 +38,14 @@ class Caster(Task):
     def _cast(self):
         while not self.thread.stopped():
             player: Player = self.psm.get().value
-            if not self.game.is_active() or not player:
+            if not self.game.is_connected() or not player:
                 time.sleep(self.delay)
                 continue
             for cast in self.cast_list:
                 if not cast.should_cast(player):
                     continue
-                self.keyboard.press(cast.key)
-                self.keyboard.release(cast.key)
+                controller = self.game.controller
+                controller.press(cast.key)
                 if cast.cooldown:
                     time.sleep(cast.cooldown)
                 break

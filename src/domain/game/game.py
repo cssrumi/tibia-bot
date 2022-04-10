@@ -6,12 +6,14 @@ import win32gui
 from pynput.keyboard import Listener, Key
 from pywinauto import Application
 
+from domain.game.control import Controller
 from domain.task import Task
 
 
 @attr.s
 class Game:
     name = attr.ib(default='Tibia', type=str, kw_only=False)
+    controller = attr.ib(init=False, type=Controller)
     tasks = attr.ib(init=False, type=List[Task], factory=list)
     _on_exit = attr.ib(init=False, type=List[Callable], factory=list)
     app = attr.ib(kw_only=True, type=Application, factory=Application)
@@ -71,6 +73,7 @@ class AppConnectTask(Task):
         self.app.connect(title=self.game.name)
         self._is_connected = True
         self.game._is_connected = True
+        self.game.controller = Controller(self.game)
         print('Connected to Tibia application')
         return True
 

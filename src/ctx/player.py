@@ -57,4 +57,5 @@ class PlayerImageListener(Listener[Image]):
         if state.is_empty():
             pass
         new_player = self.psm.create_new_player(state)
+        print(new_player)
         self.psm.update(new_player)
