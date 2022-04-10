@@ -27,7 +27,6 @@ class MagicTrainingTask(Task):
     def _train(self):
         while not self.thread.stopped():
             player = self.psm.get().value
-            print(player)
             if self.game.is_active() and player and player.mana >= self.min_mana and player.health >= self.min_health:
                 self.keyboard.press(self.key)
                 self.keyboard.release(self.key)

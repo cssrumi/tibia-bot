@@ -32,10 +32,6 @@ class Game:
     def add_task(self, task: Task):
         self.tasks.append(task)
 
-    def remove_task(self, task: Task):
-        self.tasks.remove(task)
-        print(task.__class__, "removed")
-
     def start_all(self):
         [task.start() for task in self.tasks]
 
@@ -84,5 +80,3 @@ class AppConnectTask(Task):
             time.sleep(1)
             continue
         self.stop()
-        self.game.tasks.remove(self)
-

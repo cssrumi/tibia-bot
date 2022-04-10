@@ -20,10 +20,10 @@ def mietar():
         Potion(Key.f5, min_health=60, priority=-1),
         Potion(Key.f6, min_health=70),
     ]
-    # combo = [
-    #     AttackSpell(Key.f7, min_mana=15, cooldown=2),
-    #     AttackRune(Key.f8, cooldown=2)
-    # ]
+    combo = [
+        AttackSpell(Key.f7, min_mana=15, cooldown=2),
+        AttackRune(Key.f8, cooldown=2)
+    ]
 
     game = Game('Tibia - Mietar')
 
@@ -36,8 +36,8 @@ def mietar():
     MagicTrainingTask(game, psm, key=Key.f3, min_mana=90)
     FoodEaterTask(game, key=Key.f9)
     ExchangeTask(game, psm, wsmt)
-    # cc = ComboCaster(game, psm, combo)
-    # ComboSwitch(cc, key='=')
+    cc = ComboCaster(game, psm, combo)
+    ComboSwitch(cc, key=Key.f12)
 
     # sssm = StoneSkinStateManager()
     # ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)

@@ -35,7 +35,7 @@ class ComboCaster(Task):
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
     delay = attr.ib(type=float, default=0.2, kw_only=True)
-    is_stopped = attr.ib(type=bool, default=False)
+    is_stopped = attr.ib(type=bool, default=True)
 
     def __attrs_post_init__(self):
         self.game.add_task(self)
@@ -67,12 +67,23 @@ class ComboCaster(Task):
 class ComboSwitch:
     combo_caster = attr.ib(type=ComboCaster)
     key = attr.ib(type=Union[Key, str])
+    _listener = attr.ib(init=False, type=Listener)
 
-    # def __attrs_post_init__(self):
-    #     with Listener(on_release=self._on_release) as listener:
-    #         self.combo_caster.game.register_on_exit(listener)
-    #         listener.join()
+    def __attrs_post_init__(self):
+        self._listen()
+
+    def _listen(self):
+        listener = Listener(on_release=self._on_release)
+        listener.start()
+        self._listener = listener
+        self.combo_caster.game.register_on_exit(self._stop)
+
+    def _stop(self):
+        print("stopping combo listener")
+        self._listener.stop()
 
     def _on_release(self, key: Union[Key, str]):
         if key == self.key:
             self.combo_caster.switch()
+            off_on = "off" if self.combo_caster.is_stopped else "on"
+            print("combo turn", off_on)
