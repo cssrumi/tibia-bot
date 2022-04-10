@@ -11,7 +11,7 @@ class WindowStateManagerTask(StateManagerTask[Image]):
 
     def __attrs_post_init__(self):
         self.game.add_task(self)
-        self.grabber = create_grabber(self.game.name)
+        self.grabber = create_grabber(self.game)
 
     def new_value(self) -> Image:
         return self.grabber.grab()

@@ -5,6 +5,8 @@ import win32gui
 import win32ui
 from PIL import Image, ImageGrab
 
+from domain.game.game import Game
+
 tibia_hwnd = win32gui.FindWindowEx(None, None, None, 'Tibia - Mietar')
 
 
@@ -53,7 +55,11 @@ class Win32ApplicationGrabber(ApplicationGrabber):
         img = Image.frombuffer(
             'RGB',
             (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-            bmpstr, 'raw', 'BGRX', 0, 1)
+            bmpstr,
+            'raw',
+            'BGRX',
+            0,
+            1)
 
         win32gui.DeleteObject(saveBitMap.GetHandle())
         saveDC.DeleteDC()
@@ -62,5 +68,28 @@ class Win32ApplicationGrabber(ApplicationGrabber):
         return img
 
 
-def create_grabber(app_name: str) -> ApplicationGrabber:
-    return Win32ApplicationGrabber(app_name)
+@attr.s
+class ApplicationGrabberFacade(ApplicationGrabber):
+    game = attr.ib(type=Game)
+    name = attr.ib(type=str, init=False)
+    active_window_grabber = attr.ib(type=PilApplicationGrabber, init=False)
+    inactive_window_grabber = attr.ib(type=Win32ApplicationGrabber, init=False)
+
+    def __attrs_post_init__(self):
+        self.name = self.game.name
+        self.active_window_grabber = PilApplicationGrabber(self.name)
+        self.inactive_window_grabber = Win32ApplicationGrabber(self.name)
+
+    def find_grabber(self):
+        return self.active_window_grabber if self.game.is_active() else self.inactive_window_grabber
+
+    def grab(self):
+        grabber = self.find_grabber()
+        img = grabber.grab()
+        return img
+
+
+def create_grabber(game: Game):
+    return ApplicationGrabberFacade(game)
+    # return PilApplicationGrabber(game.name)
+    # return self.grabber = Win32ApplicationGrabber(game.name)
