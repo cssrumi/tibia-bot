@@ -27,7 +27,7 @@ def mietar():
 
     game = Game('Tibia - Mietar')
 
-    wsmt = WindowStateManagerTask(game, delay=0)
+    wsmt = WindowStateManagerTask(game, delay=0, on_active_only=True)
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
     wsmt.add_update_listener(pil.update_listener)

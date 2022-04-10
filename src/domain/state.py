@@ -41,6 +41,7 @@ class StateManager(Generic[T]):
 class StateManagerTask(Task, StateManager[T], Generic[T]):
     game = attr.ib()
     delay = attr.ib(type=float, default=0.1, kw_only=True)
+    on_active_only = attr.ib(type=bool, default=True, kw_only=True)
 
     def _run(self):
         self.thread = StoppableThread(target=self.executor, args=(), daemon=True)
@@ -49,7 +50,7 @@ class StateManagerTask(Task, StateManager[T], Generic[T]):
     def executor(self):
         while not self.thread.stopped():
             start = int(time.time_ns())
-            if self.game.is_active():
+            if self.game.is_active() or not self.on_active_only:
                 self.update(self.new_value())
                 # if self.delay:
                 #     time.sleep(self.delay)
