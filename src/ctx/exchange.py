@@ -1,6 +1,7 @@
 import time
 
 import attr
+import numpy
 import win32api
 import win32con
 import win32gui
@@ -9,7 +10,7 @@ from pywinauto import Application
 from ctx.player import PlayerStateManager
 from ctx.window import WindowStateManagerTask
 from domain.game.game import Game
-from domain.game.locate import locate_image, Position, image_center
+from domain.game.locate import locate_image, Position, image_center, load_image
 from domain.task import Task, StoppableThread
 
 
@@ -23,16 +24,16 @@ class ExchangeTask(Task):
     psm = attr.ib(type=PlayerStateManager)
     wsm = attr.ib(type=WindowStateManagerTask)
     app = attr.ib(kw_only=True, type=Application, factory=Application)
-    exchange_img = attr.ib(kw_only=True, type=str, default=GP_IMAGE)
+    exchange_img_path = attr.ib(kw_only=True, type=str, default=GP_IMAGE)
     exchange_img_center = attr.ib(init=False, type=Position)
+    _exchange_img = attr.ib(init=False, type=numpy.ndarray)
     delay = attr.ib(kw_only=True, type=float, default=0.5)
     _is_connected = attr.ib(init=False, type=bool, default=False)
 
     def __attrs_post_init__(self):
+        self.exchange_img_center = image_center(self.exchange_img_path)
+        self._exchange_img = load_image(self.exchange_img_path)
         self.game.add_task(self)
-
-    def __attrs_post_init__(self):
-        self.exchange_img_center = image_center(self.exchange_img)
 
     def _run(self):
         self.thread = StoppableThread(target=self._exchange, args=(), daemon=True)
@@ -60,7 +61,7 @@ class ExchangeTask(Task):
             if player_state.is_empty() or not player_state.value.is_healthy():
                 time.sleep(1)
                 continue
-            cash = locate_image(state, self.exchange_img, precision=0.9)
+            cash = locate_image(state, self._exchange_img, precision=0.92)
             if not cash.is_empty():
                 pos_to_click = cash.add(self.exchange_img_center).minus(MARGIN)
                 self.app.window().click(button='right', coords=pos_to_click.tuple())
