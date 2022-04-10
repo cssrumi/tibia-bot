@@ -1,4 +1,5 @@
 import time
+from enum import Enum, auto
 
 import attr
 import numpy
@@ -13,9 +14,13 @@ from domain.game.game import Game
 from domain.game.locate import locate_image, Position, image_center, load_image
 from domain.task import Task, StoppableThread
 
-
 GP_IMAGE = '../image/100gp.png'
 MARGIN = Position(0, 20)
+
+
+class MouseButton(Enum):
+    RIGHT = auto()
+    LEFT = auto()
 
 
 @attr.s
@@ -69,15 +74,15 @@ class ExchangeTask(Task):
                 print("Cash exchanged!")
 
 
-def control_click(x, y, handle, button='right'):
+def control_click(x, y, handle, button: MouseButton = MouseButton.RIGHT):
     print(handle)
 
     l_param = win32api.MAKELONG(x, y)
 
-    if button == 'left':
+    if button == MouseButton.LEFT:
         win32gui.PostMessage(handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
         win32gui.PostMessage(handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, l_param)
 
-    elif button == 'right':
+    elif button == MouseButton.RIGHT:
         win32gui.PostMessage(handle, win32con.WM_RBUTTONDOWN, 0, l_param)
         win32gui.PostMessage(handle, win32con.WM_RBUTTONUP, 0, l_param)
