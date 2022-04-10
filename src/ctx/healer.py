@@ -21,6 +21,9 @@ class Potion(Cast):
     min_mana = attr.ib(type=int, kw_only=True, default=100)
     min_health = attr.ib(type=int, kw_only=True, default=100)
 
+    def should_cast(self, player: Player):
+        return player.health <= self.min_health and player.mana <= self.min_mana
+
 
 @attr.s
 class HealerTask(Task):

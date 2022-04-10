@@ -1,11 +1,7 @@
 import time
-from enum import Enum, auto
 
 import attr
 import numpy
-import win32api
-import win32con
-import win32gui
 from pywinauto import Application
 
 from ctx.player import PlayerStateManager
@@ -18,48 +14,31 @@ GP_IMAGE = '../image/100gp.png'
 MARGIN = Position(0, 20)
 
 
-class MouseButton(Enum):
-    RIGHT = auto()
-    LEFT = auto()
-
-
 @attr.s
 class ExchangeTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     wsm = attr.ib(type=WindowStateManagerTask)
-    app = attr.ib(kw_only=True, type=Application, factory=Application)
+    app = attr.ib(init=False, type=Application)
     exchange_img_path = attr.ib(kw_only=True, type=str, default=GP_IMAGE)
     exchange_img_center = attr.ib(init=False, type=Position)
     _exchange_img = attr.ib(init=False, type=numpy.ndarray)
     delay = attr.ib(kw_only=True, type=float, default=0.5)
-    _is_connected = attr.ib(init=False, type=bool, default=False)
 
     def __attrs_post_init__(self):
         self.exchange_img_center = image_center(self.exchange_img_path)
         self._exchange_img = load_image(self.exchange_img_path)
+        self.app = self.game.app
         self.game.add_task(self)
 
     def _run(self):
         self.thread = StoppableThread(target=self._exchange, args=(), daemon=True)
         self.thread.start()
 
-    def _connect(self) -> bool:
-        if self._is_connected or not self.game.is_active():
-            return False
-        self.app.connect(title=self.game.name)
-        self._is_connected = True
-        print('exchange application connected')
-        return True
-
     def _exchange(self):
         while not self.thread.stopped():
             state = self.wsm.get()
-            if not self.game.is_active() or state.is_empty():
-                time.sleep(1)
-                continue
-            if not self._is_connected:
-                self._connect()
+            if not self.game.is_active() or state.is_empty() or not self.game.is_connected():
                 time.sleep(1)
                 continue
             player_state = self.psm.get()
@@ -72,17 +51,3 @@ class ExchangeTask(Task):
                 self.app.window().click(button='right', coords=pos_to_click.tuple())
                 time.sleep(self.delay)
                 print("Cash exchanged!")
-
-
-def control_click(x, y, handle, button: MouseButton = MouseButton.RIGHT):
-    print(handle)
-
-    l_param = win32api.MAKELONG(x, y)
-
-    if button == MouseButton.LEFT:
-        win32gui.PostMessage(handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param)
-        win32gui.PostMessage(handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, l_param)
-
-    elif button == MouseButton.RIGHT:
-        win32gui.PostMessage(handle, win32con.WM_RBUTTONDOWN, 0, l_param)
-        win32gui.PostMessage(handle, win32con.WM_RBUTTONUP, 0, l_param)

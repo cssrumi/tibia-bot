@@ -18,7 +18,7 @@ class Cast:
     cooldown = attr.ib(type=float, default=0.2, kw_only=True)
 
     def should_cast(self, player: Player):
-        return player.health <= self.min_health and player.mana <= self.min_mana
+        raise NotImplementedError()
 
 
 @attr.s
@@ -26,7 +26,6 @@ class Caster(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
-    priority = attr.ib(type=int, default=-100, kw_only=True)
     delay = attr.ib(type=float, default=0.4, kw_only=True)
 
     def __attrs_post_init__(self):
