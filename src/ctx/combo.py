@@ -64,25 +64,31 @@ class ComboCaster(Task):
 
 
 @attr.s
-class ComboSwitch:
+class ComboSwitch(Task):
     combo_caster = attr.ib(type=ComboCaster)
-    key = attr.ib(type=Union[Key, str])
+    key = attr.ib(type=Key)
     _listener = attr.ib(init=False, type=Listener)
 
     def __attrs_post_init__(self):
-        self._listen()
+        self.combo_caster.game.add_task(self)
+
+    def _run(self):
+        self.thread = StoppableThread(target=self._listen, args=(), daemon=True)
+        self.thread.start()
 
     def _listen(self):
-        listener = Listener(on_release=self._on_release)
-        listener.start()
-        self._listener = listener
-        self.combo_caster.game.register_on_exit(self._stop)
+        self.combo_caster.game.register_on_exit(self._stop_listener)
+        with Listener(on_release=self._on_release) as listener:
+            self._listener = listener
+            listener.join()
 
-    def _stop(self):
+    def _stop_listener(self):
         print("stopping combo listener")
-        self._listener.stop()
+        if self._listener:
+            self._listener.stop()
 
-    def _on_release(self, key: Union[Key, str]):
+    def _on_release(self, key: Key):
+        print(key)
         if key == self.key:
             self.combo_caster.switch()
             off_on = "off" if self.combo_caster.is_stopped else "on"

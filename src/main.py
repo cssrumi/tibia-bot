@@ -37,7 +37,7 @@ def mietar():
     FoodEaterTask(game, key=Key.f9)
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
-    ComboSwitch(cc, key=Key.f12)
+    ComboSwitch(cc, key=Key.caps_lock)
 
     # sssm = StoneSkinStateManager()
     # ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)

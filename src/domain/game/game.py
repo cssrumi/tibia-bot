@@ -44,8 +44,8 @@ class Game:
 
     def _on_release(self, key: Key):
         if key == self.exit_key:
-            self.stop_all()
             [fun() for fun in self._on_exit]
+            self.stop_all()
 
     def await_exit(self):
         with Listener(on_release=self._on_release) as listener:
