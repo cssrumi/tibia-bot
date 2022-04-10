@@ -34,6 +34,8 @@ def mietar():
 
     HealerTask(game, psm, spells=spells, potions=potions)
     MagicTrainingTask(game, psm, key=Key.f3, min_mana=90)
+    # MagicTrainingTask(game, psm, key=Key.f3, min_mana=70)
+    # MagicTrainingTask(game, psm, key=Key.f10, min_mana=70)
     FoodEaterTask(game, key=Key.f9)
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)

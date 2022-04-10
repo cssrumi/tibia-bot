@@ -1,6 +1,6 @@
 import time
 from itertools import cycle
-from typing import List, Union
+from typing import List
 
 import attr
 from pynput.keyboard import Key, Listener
@@ -34,7 +34,7 @@ class ComboCaster(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
-    delay = attr.ib(type=float, default=0.2, kw_only=True)
+    delay = attr.ib(type=float, default=0.1, kw_only=True)
     is_stopped = attr.ib(type=bool, default=True)
 
     def __attrs_post_init__(self):
@@ -54,13 +54,15 @@ class ComboCaster(Task):
                 time.sleep(self.delay)
                 continue
             for cast in cycle(self.cast_list):
+                if self.is_stopped:
+                    break
                 if cast.should_cast(player):
                     self.keyboard.press(cast.key)
                     self.keyboard.release(cast.key)
-                if self.is_stopped:
-                    break
                 if cast.cooldown:
                     time.sleep(cast.cooldown)
+                if self.delay:
+                    time.sleep(self.delay)
 
 
 @attr.s
@@ -88,7 +90,6 @@ class ComboSwitch(Task):
             self._listener.stop()
 
     def _on_release(self, key: Key):
-        print(key)
         if key == self.key:
             self.combo_caster.switch()
             off_on = "off" if self.combo_caster.is_stopped else "on"
