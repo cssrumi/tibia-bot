@@ -4,6 +4,7 @@ import win32con
 import win32gui
 from pywinauto import WindowSpecification
 from pynput.keyboard import Key as PPKey
+from pynput.keyboard import Controller as PPController
 
 from domain.game.locate import Position
 
@@ -60,4 +61,40 @@ class Controller:
         self.window.click(button=button, coords=pos_to_click.tuple())
 
     def press(self, key: Key):
+        raise NotImplementedError()
+
+
+@attr.s
+class PywinautoController(Controller):
+
+    def press(self, key: Key):
         self.window.send_keystrokes(key.pywinauto_key)
+
+
+@attr.s
+class PynputController(Controller):
+    keyboard = attr.ib(default=PPController(), type=PPController, init=False, kw_only=True)
+
+    def press(self, key: Key):
+        self.keyboard.press(key.pynput_key)
+        self.keyboard.release(key.pynput_key)
+
+
+@attr.s
+class ControllerFacade(Controller):
+    pywinauto = attr.ib(type=PywinautoController, init=False)
+    pynput = attr.ib(type=PywinautoController, init=False)
+
+    def __attrs_post_init__(self):
+        self.pywinauto = PywinautoController(self.game)
+        self.pynput = PynputController(self.game)
+
+    def press(self, key: Key):
+        controller = self.pynput if self.game.is_active() else self.pywinauto
+        controller.press(key)
+
+
+def create_controller(game: 'Game') -> Controller:
+    # return ControllerFacade(game)
+    # return PynputController(game)
+    return PywinautoController(game)

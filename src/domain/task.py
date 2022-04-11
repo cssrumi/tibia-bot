@@ -1,7 +1,6 @@
 import threading
 
 import attr
-from pynput.keyboard import Controller
 
 
 class StoppableThread(threading.Thread):
@@ -23,7 +22,6 @@ class StoppableThread(threading.Thread):
 class Task:
     name = attr.ib(default=attr.Factory(lambda self: self.__class__.__name__, takes_self=True), init=False)
     thread = attr.ib(default=None, type=StoppableThread, init=False)
-    keyboard = attr.ib(default=Controller(), type=Controller, init=False, kw_only=True)
 
     def start(self):
         if self.is_started():

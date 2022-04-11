@@ -6,7 +6,7 @@ import win32gui
 from pynput.keyboard import Listener, Key
 from pywinauto import Application
 
-from domain.game.control import Controller
+from domain.game.control import Controller, create_controller
 from domain.task import Task
 
 
@@ -73,7 +73,7 @@ class AppConnectTask(Task):
         self.app.connect(title=self.game.name)
         self._is_connected = True
         self.game._is_connected = True
-        self.game.controller = Controller(self.game)
+        self.game.controller = create_controller(self.game)
         print('Connected to Tibia application')
         return True
 
