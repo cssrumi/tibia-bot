@@ -33,9 +33,9 @@ def mietar():
     wsmt.add_update_listener(pil.update_listener)
 
     HealerTask(game, psm, spells=spells, potions=potions)
-    # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
-    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
-    MagicTrainingTask(game, psm, key=Keys.F10, min_mana=70)
+    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
+    # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
+    # MagicTrainingTask(game, psm, key=Keys.F10, min_mana=70)
     FoodEaterTask(game, key=Keys.F9)
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
