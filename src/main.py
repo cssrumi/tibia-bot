@@ -1,5 +1,6 @@
 from pynput.keyboard import Key
 
+from ctx.autotarget import AutoTargetTask
 from ctx.combo import ComboCaster, AttackSpell, AttackRune, ComboSwitch
 from ctx.exchange import ExchangeTask
 from ctx.foodeater import FoodEaterTask
@@ -40,6 +41,7 @@ def mietar():
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
     ComboSwitch(cc, key=Key.caps_lock)
+    AutoTargetTask(game)
 
     # sssm = StoneSkinStateManager()
     # ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)
