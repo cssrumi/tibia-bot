@@ -26,7 +26,7 @@ class Caster(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
-    delay = attr.ib(type=float, default=0.4, kw_only=True)
+    delay = attr.ib(type=float, default=0.1, kw_only=True)
 
     def __attrs_post_init__(self):
         self.cast_list = sorted(self.cast_list, key=lambda c: (c.priority, c.min_health, c.min_mana))
@@ -43,6 +43,7 @@ class Caster(Task):
                 continue
             for cast in self.cast_list:
                 if not cast.should_cast(player):
+                    time.sleep(self.delay)
                     continue
                 controller = self.game.controller
                 controller.press(cast.key)
