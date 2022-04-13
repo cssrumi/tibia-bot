@@ -38,7 +38,7 @@ class Position:
         return Position.__empty
 
 
-def locate_image(window_state: State[Image], image, precision=0.8, start=True):
+def locate_image(window_state: State[Image], image, precision=0.8, start=True) -> Position:
     if window_state.is_empty():
         print("window state was empty")
         return Position.empty()

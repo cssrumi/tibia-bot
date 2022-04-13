@@ -67,19 +67,16 @@ class AppConnectTask(Task):
     def __attrs_post_init__(self):
         self.app = self.game.app
 
-    def _connect(self) -> bool:
-        if self._is_connected or not self.game.is_active():
-            return False
+    def _connect(self):
+        if self._is_connected:
+            return
         self.app.connect(title=self.game.name)
         self._is_connected = True
         self.game._is_connected = True
         self.game.controller = create_controller(self.game)
         print('Connected to Tibia application')
-        return True
+        return
 
     def _run(self):
-        while not self._is_connected:
-            self._connect()
-            time.sleep(1)
-            continue
+        self._connect()
         self.stop()
