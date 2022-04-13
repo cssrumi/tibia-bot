@@ -18,7 +18,7 @@ class Position:
     x = attr.ib(type=int, converter=int)
     y = attr.ib(type=int, converter=int)
 
-    def add(self, other: 'Position'):
+    def plus(self, other: 'Position'):
         return Position(self.x + other.x, self.y + other.y)
 
     def minus(self, other: 'Position'):

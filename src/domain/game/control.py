@@ -2,9 +2,9 @@ import attr
 import win32api
 import win32con
 import win32gui
-from pywinauto import WindowSpecification
-from pynput.keyboard import Key as PPKey
 from pynput.keyboard import Controller as PPController
+from pynput.keyboard import Key as PPKey
+from pywinauto import WindowSpecification
 
 from domain.game.locate import Position
 
@@ -32,6 +32,9 @@ class Keys:
     SPACE = Key('{SPACE}', PPKey.space)
 
 
+MouseButton = str
+
+
 class MouseButtons:
     RIGHT = 'right'
     LEFT = 'left'
@@ -53,12 +56,25 @@ def control_click(x, y, handle, button: MouseButtons = MouseButtons.RIGHT):
 class Controller:
     game = attr.ib(type='Game')
     window = attr.ib(type=WindowSpecification, init=False)
+    hwnd = attr.ib(type=int, init=False)
 
     def __attrs_post_init__(self):
         self.window = self.game.app.window()
+        self.hwnd = win32gui.FindWindow(None, self.game.name)
 
-    def click(self, button: MouseButtons, pos_to_click: Position):
+    def click(self, button: MouseButton, pos_to_click: Position):
         self.window.click(button=button, coords=pos_to_click.tuple())
+
+    def drag_mouse(self, press_pos: Position, release_pos: Position):
+        press_lParam = self.pos_to_lParam(press_pos)
+        release_lParam = self.pos_to_lParam(release_pos)
+        win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, press_lParam)
+        win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, press_lParam)
+        win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, release_lParam)
+        win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONUP, None, release_lParam)
+
+    def pos_to_lParam(self, pos: Position):
+        return win32api.MAKELONG(pos.x, pos.y)
 
     def press(self, key: Key):
         raise NotImplementedError()

@@ -1,3 +1,4 @@
+from ctx.ammorefill import AmmoRefillTask
 from ctx.autotarget import AutoTargetTask
 from ctx.combo import ComboCaster, AttackSpell, AttackRune, ComboSwitch
 from ctx.exchange import ExchangeTask
@@ -6,6 +7,7 @@ from ctx.healer import HealerTask, Spell, Potion
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.window import WindowStateManagerTask
+from domain.container import Quivers, Backpacks
 from domain.game.game import Game
 from domain.game.control import Keys
 
@@ -40,7 +42,8 @@ def mietar():
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    # AutoTargetTask(game)
+    AutoTargetTask(game)
+    AmmoRefillTask(game, psm, wsmt, quiver=Quivers.BLUE, backpack=Backpacks.BEACH)
 
     # sssm = StoneSkinStateManager()
     # ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)

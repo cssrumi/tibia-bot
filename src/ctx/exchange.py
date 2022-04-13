@@ -48,7 +48,9 @@ class ExchangeTask(Task):
                 continue
             cash = locate_image(state, self._exchange_img, precision=0.92)
             if not cash.is_empty():
-                pos_to_click = cash.add(self.exchange_img_center).minus(MARGIN)
+                pos_to_click = cash.plus(self.exchange_img_center).minus(MARGIN)
+                print(cash)
+                print(pos_to_click)
                 self.game.controller.click(MouseButtons.RIGHT, pos_to_click)
-                time.sleep(self.delay)
                 print("Cash exchanged!")
+                time.sleep(self.delay)
