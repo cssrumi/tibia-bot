@@ -6,6 +6,7 @@ from pynput.keyboard import Listener, Key
 from pywinauto import Application
 
 from domain.game.control import Controller, create_controller
+from domain.game.inhibitor import WindowsInhibitor
 from domain.task import Task
 
 
@@ -22,6 +23,7 @@ class Game:
 
     def __attrs_post_init__(self):
         self.add_task(AppConnectTask(self))
+        WindowsInhibitor.inhibit()
 
     def is_active(self):
         w = win32gui

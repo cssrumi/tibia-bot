@@ -1,3 +1,6 @@
+import time
+from threading import Lock
+
 import attr
 import win32api
 import win32con
@@ -57,21 +60,27 @@ class Controller:
     game = attr.ib(type='Game')
     window = attr.ib(type=WindowSpecification, init=False)
     hwnd = attr.ib(type=int, init=False)
+    mouse_lock = attr.ib(init=False, type=Lock, default=Lock())
+    mouse_delay = attr.ib(type=float, default=0.1, kw_only=True)
 
     def __attrs_post_init__(self):
         self.window = self.game.app.window()
         self.hwnd = win32gui.FindWindow(None, self.game.name)
 
     def click(self, button: MouseButton, pos_to_click: Position):
-        self.window.click(button=button, coords=pos_to_click.tuple())
+        with self.mouse_lock:
+            self.window.click(button=button, coords=pos_to_click.tuple())
+            time.sleep(self.mouse_delay)
 
     def drag_mouse(self, press_pos: Position, release_pos: Position):
-        press_lParam = self.pos_to_lParam(press_pos)
-        release_lParam = self.pos_to_lParam(release_pos)
-        win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, press_lParam)
-        win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, press_lParam)
-        win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, release_lParam)
-        win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONUP, None, release_lParam)
+        with self.mouse_lock:
+            press_lParam = self.pos_to_lParam(press_pos)
+            release_lParam = self.pos_to_lParam(release_pos)
+            win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, press_lParam)
+            win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, press_lParam)
+            win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, release_lParam)
+            win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONUP, None, release_lParam)
+            time.sleep(self.mouse_delay)
 
     def pos_to_lParam(self, pos: Position):
         return win32api.MAKELONG(pos.x, pos.y)

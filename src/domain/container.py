@@ -9,3 +9,7 @@ class Backpacks:
     BLUE = containers_path + 'bluebackpack.png'
     BEACH = containers_path + 'beachbackpack.png'
     CRYSTAL = containers_path + 'crystalbackpack.png'
+
+
+class Depots:
+    BOX_XVIII = containers_path + 'depotboxxviii.png'

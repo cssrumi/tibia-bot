@@ -4,12 +4,14 @@ from ctx.combo import ComboCaster, AttackSpell, AttackRune, ComboSwitch
 from ctx.exchange import ExchangeTask
 from ctx.foodeater import FoodEaterTask
 from ctx.healer import HealerTask, Spell, Potion
+from ctx.loot import AutoLootTask
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
+from ctx.refill import RefillTask
 from ctx.window import WindowStateManagerTask
-from domain.container import Quivers, Backpacks
+from domain.container import Quivers, Backpacks, Depots
 from domain.game.game import Game
-from domain.game.control import Keys
+from domain.game.control import Keys, MouseButtons
 
 
 def mietar():
@@ -19,8 +21,8 @@ def mietar():
     ]
     potions = [
         Potion(Keys.F4, min_mana=70),
-        Potion(Keys.F5, min_health=60, priority=-1),
-        Potion(Keys.F6, min_health=70),
+        Potion(Keys.F5, min_health=50, priority=-1),
+        Potion(Keys.F6, min_health=65),
     ]
     combo = [
         AttackSpell(Keys.F7, min_mana=15, cooldown=2),
@@ -29,21 +31,27 @@ def mietar():
 
     game = Game('Tibia - Mietar')
 
-    wsmt = WindowStateManagerTask(game, delay=0, on_active_only=False)
+    wsmt = WindowStateManagerTask(game, delay=0)
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
     wsmt.add_update_listener(pil.update_listener)
 
     HealerTask(game, psm, spells=spells, potions=potions)
-    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
-    # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
-    # MagicTrainingTask(game, psm, key=Keys.F10, min_mana=70)
     FoodEaterTask(game, key=Keys.F9)
+
+    # -- EXP --
+    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
     AutoTargetTask(game)
     AmmoRefillTask(game, psm, wsmt, quiver=Quivers.BLUE, backpack=Backpacks.BEACH)
+    AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
+
+    # -- Training --
+    # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
+    # MagicTrainingTask(game, psm, key=Keys.F10, min_mana=70)
+    # RefillTask(game, psm, wsmt, from_container=Depots.BOX_XVIII, to_container=Backpacks.BEACH)
 
     # sssm = StoneSkinStateManager()
     # ssi = StoneSkinInvoker(game, psm, key=Key.f12, equip_at=30)

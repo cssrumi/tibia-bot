@@ -65,7 +65,8 @@ def load_image(image) -> numpy.ndarray:
     raise RuntimeError("Unable to load image of type:" + type(image))
 
 
-def image_center(image: str) -> Position:
-    template = cv2.imread(image, 0)
-    width, height = template.shape
-    return Position(width / 2, height / 2)
+def image_center(image) -> Position:
+    template = load_image(image)
+    height, width = template.shape
+    print(width, height)
+    return Position(int(width / 2), int(height / 2))
