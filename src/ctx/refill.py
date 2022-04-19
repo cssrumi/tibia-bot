@@ -15,6 +15,9 @@ MARGIN = Position(0, 20)
 ITEM_POSITION = Position(30, 30)
 
 
+#FIRST_SLOT=45X52
+
+
 @attr.s
 class RefillTask(Task):
     game = attr.ib(type=Game)
@@ -25,7 +28,7 @@ class RefillTask(Task):
     to_container = attr.ib(kw_only=True, type=str)
     _from_container_img = attr.ib(init=False, type=numpy.ndarray)
     _to_container_img = attr.ib(init=False, type=numpy.ndarray)
-    delay = attr.ib(kw_only=True, type=float, default=30)
+    delay = attr.ib(kw_only=True, type=float, default=15)
 
     def __attrs_post_init__(self):
         self._from_container_img = load_image(self.from_container)

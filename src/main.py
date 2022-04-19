@@ -40,12 +40,13 @@ def mietar():
     FoodEaterTask(game, key=Keys.F9)
 
     # -- EXP --
+    # MagicTrainingTask(game, psm, key=Keys.F10, min_mana=90)  # explosion
     MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
     ExchangeTask(game, psm, wsmt)
     cc = ComboCaster(game, psm, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
     AutoTargetTask(game)
-    AmmoRefillTask(game, psm, wsmt, quiver=Quivers.BLUE, backpack=Backpacks.BEACH)
+    # AmmoRefillTask(game, psm, wsmt, quiver=Quivers.BLUE, backpack=Backpacks.CRYSTAL)
     AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
 
     # -- Training --
