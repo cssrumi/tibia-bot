@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Tuple
+from typing import Tuple, Generator, Union
 
 import attr
 import cv2
@@ -38,12 +38,25 @@ class Position:
         return Position.__empty
 
 
-def locate_image(window_state: State[Image], image, precision=0.8, start=True) -> Position:
-    if window_state.is_empty():
-        print("window state was empty")
-        return Position.empty()
+def load_window_state(window_state: State[Image]) -> numpy.ndarray:
     img_rgb = np.array(window_state.value)
-    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    return cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+
+
+def load_origin(origin: Union[State[Image], numpy.ndarray]) -> numpy.ndarray:
+    if isinstance(origin, State):
+        return load_window_state(origin)
+    if isinstance(origin, numpy.ndarray):
+        return origin
+    raise ValueError("Invalid origin type: " + type(origin))
+
+
+def locate_image(origin: Union[State[Image], numpy.ndarray], image, precision=0.8, start=True) -> Position:
+    if origin is None or (isinstance(origin, State) and origin.is_empty()):
+        print("Origin was empty")
+        return Position.empty()
+
+    img_gray = load_origin(origin)
     template = load_image(image)
 
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
@@ -55,6 +68,25 @@ def locate_image(window_state: State[Image], image, precision=0.8, start=True) -
             shape = template.shape
             return Position(position[0] + shape[0], position[1] + shape[1])
     return Position.empty()
+
+
+def locate_image_gen(origin: Union[State[Image], numpy.ndarray], image, precision=0.8, start=True) -> Generator[Position, None, None]:
+    if origin is None or (isinstance(origin, State) and origin.is_empty()):
+        print("Origin was empty")
+        yield Position.empty()
+
+    img_gray = load_origin(origin)
+    template = load_image(image)
+
+    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    positions = np.where(res > precision)
+    for position in zip(*positions[::-1]):
+        if start:
+            yield Position(position[0], position[1])
+        else:
+            shape = template.shape
+            yield Position(position[0] + shape[0], position[1] + shape[1])
+    yield
 
 
 def load_image(image) -> numpy.ndarray:

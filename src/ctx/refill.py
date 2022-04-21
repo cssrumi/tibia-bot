@@ -6,6 +6,7 @@ from pywinauto import Application
 
 from ctx.player import PlayerStateManager
 from ctx.window import WindowStateManagerTask
+from domain.container import Container
 from domain.game.game import Game
 from domain.game.locate import locate_image, Position, load_image
 from domain.task import Task, StoppableThread
@@ -13,9 +14,6 @@ from domain.task import Task, StoppableThread
 MARGIN = Position(0, 20)
 
 ITEM_POSITION = Position(30, 30)
-
-
-#FIRST_SLOT=45X52
 
 
 @attr.s
@@ -28,7 +26,7 @@ class RefillTask(Task):
     to_container = attr.ib(kw_only=True, type=str)
     _from_container_img = attr.ib(init=False, type=numpy.ndarray)
     _to_container_img = attr.ib(init=False, type=numpy.ndarray)
-    delay = attr.ib(kw_only=True, type=float, default=15)
+    delay = attr.ib(kw_only=True, type=float, default=10)
 
     def __attrs_post_init__(self):
         self._from_container_img = load_image(self.from_container)
@@ -50,11 +48,11 @@ class RefillTask(Task):
             if player_state.is_empty() or not player_state.value.is_healthy():
                 time.sleep(1)
                 continue
-            from_container_pos = locate_image(state, self._from_container_img, precision=0.92)
-            to_container_pos = locate_image(state, self._to_container_img, precision=0.92)
+            from_container_pos = Container.find_first_not_empty(state, self._from_container_img).position
+            to_container_pos = Container.find_first(state, self._to_container_img).position
             if not to_container_pos.is_empty() and not from_container_pos.is_empty():
                 click_pos = from_container_pos.plus(ITEM_POSITION).minus(MARGIN)
                 release_pos = to_container_pos.plus(ITEM_POSITION).minus(MARGIN)
                 self.game.controller.drag_mouse(click_pos, release_pos)
                 print("item refilled!")
-                time.sleep(self.delay)
+            time.sleep(self.delay)
