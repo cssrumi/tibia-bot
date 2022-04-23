@@ -5,10 +5,10 @@ import attr
 import cv2
 import numpy
 import pynput
-from PIL.Image import Image
 from pynput.keyboard import Controller
 
 from ctx.player import PlayerStateManager, Player
+from ctx.window import Window
 from domain.game.game import Game
 from domain.game.locate import Position, locate_image
 from domain.listener import Listener
@@ -26,11 +26,12 @@ class StoneSkinLocation:
     height = attr.ib(type=int)
 
     @staticmethod
-    def find(window_state: State[Image]):
-        position = locate_image(window_state, STONE_SKIN_OFF_IMAGE, precision=0.99)
+    def find(window_state: State[Window]):
+        origin = window_state.get().ndarray()
+        position = locate_image(origin, STONE_SKIN_OFF_IMAGE, precision=0.99)
         img = cv2.imread(STONE_SKIN_OFF_IMAGE)
         if position.is_empty():
-            position = locate_image(window_state, STONE_SKIN_ON_IMAGE, precision=0.99)
+            position = locate_image(origin, STONE_SKIN_ON_IMAGE, precision=0.99)
             img = cv2.imread(STONE_SKIN_OFF_IMAGE)
         if position.is_empty():
             raise RuntimeError("Unable to find stone skin location.")
@@ -58,20 +59,20 @@ class StoneSkinStateManager(StateManager[Equipped]):
         return super().get()
 
     @Decorator.process
-    def init_stone_skin_location(self, state: State[Image]):
+    def init_stone_skin_location(self, state: State[Window]):
         if state.is_empty():
             return
         self.stone_skin_location = StoneSkinLocation.find(state)
 
     @Decorator.process
-    def check_state(self, state: State[Image]) -> Equipped:
-        image = cv2.cvtColor(numpy.array(state.value), cv2.COLOR_RGB2BGR)
+    def check_state(self, state: State[Window]) -> Equipped:
+        origin = state.get().ndarray()
         ssx = self.stone_skin_location.position.x
         ssy = self.stone_skin_location.position.y
         dx = self.stone_skin_location.width
         dy = self.stone_skin_location.height
 
-        to_check = image[ssy:ssy + dy, ssx:ssx + dx]
+        to_check = origin[ssy:ssy + dy, ssx:ssx + dx]
         return cv2.matchTemplate(to_check, self.verifier, cv2.TM_CCOEFF_NORMED) == 1
 
     def is_equipped(self):
@@ -106,10 +107,10 @@ class StoneSkinInvoker:
 
 
 @attr.s
-class StoneSkinImageListener(Listener[Image]):
+class StoneSkinImageListener(Listener[Window]):
     sssm = attr.ib(type=StoneSkinStateManager)
 
-    def update_listener(self, state: State[Image]) -> None:
+    def update_listener(self, state: State[Window]) -> None:
         if not self.sssm.stone_skin_location:
             self.sssm.init_stone_skin_location(state)
         if self.sssm.is_processing:

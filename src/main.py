@@ -15,13 +15,11 @@ from domain.game.control import Keys, MouseButtons
 
 def mietar():
     spells = [
-        Spell(Keys.F2, min_mana=6, min_health=90),
-        Spell(Keys.F3, min_mana=10, min_health=80),
+        Spell(Keys.F3, min_mana=3, min_health=88),
     ]
     potions = [
         Potion(Keys.F4, min_mana=70),
         Potion(Keys.F5, min_health=50, priority=-1),
-        Potion(Keys.F6, min_health=65),
     ]
     combo = [
         AttackSpell(Keys.F7, min_mana=15, cooldown=2),
@@ -39,20 +37,21 @@ def mietar():
     FoodEaterTask(game, key=Keys.F9)
 
     # -- FULL AFK EXP --
-    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
-    cc = ComboCaster(game, psm, combo)
-    ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    AutoTargetTask(game)
-    RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
-
-    # -- EXP --
     # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
-    # ExchangeTask(game, psm, wsmt)
     # cc = ComboCaster(game, psm, combo)
     # ComboSwitch(cc, key=Keys.CAPS_LOCK)
     # AutoTargetTask(game)
     # RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
-    # AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
+
+    # -- EXP --
+    MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
+    MagicTrainingTask(game, psm, key=Keys.F10, min_mana=90)
+    ExchangeTask(game, psm, wsmt)
+    cc = ComboCaster(game, psm, combo)
+    ComboSwitch(cc, key=Keys.CAPS_LOCK)
+    AutoTargetTask(game)
+    RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
+    AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
 
     # -- Training --
     # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)

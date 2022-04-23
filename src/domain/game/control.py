@@ -61,7 +61,7 @@ class Controller:
     window = attr.ib(type=WindowSpecification, init=False)
     hwnd = attr.ib(type=int, init=False)
     mouse_lock = attr.ib(init=False, type=Lock, default=Lock())
-    mouse_delay = attr.ib(type=float, default=0.1, kw_only=True)
+    mouse_delay = attr.ib(type=float, default=0.2, kw_only=True)
 
     def __attrs_post_init__(self):
         self.window = self.game.app.window()

@@ -1,7 +1,8 @@
 import attr
 import cv2
-from PIL.Image import Image
+import numpy
 
+from ctx.window import Window
 from domain.game.locate import Position, locate_image
 from domain.state import State
 
@@ -30,18 +31,19 @@ class StatusLocation:
         self.health_status_pos = Position(hx, hy)
 
     @staticmethod
-    def find(window_state: State[Image]):
-        mana_loc = StatusLocation.find_mana(window_state)
-        health_loc = StatusLocation.find_health(window_state)
+    def find(window_state: State[Window]):
+        window = window_state.get()
+        mana_loc = StatusLocation.find_mana(window)
+        health_loc = StatusLocation.find_health(window)
         return StatusLocation(mana_loc, health_loc)
 
     @staticmethod
-    def find_mana(window_state: State[Image]) -> Position:
-        return locate_image(window_state, MANA_POSITION_IMAGE)
+    def find_mana(window: Window) -> Position:
+        return locate_image(window.ndarray(), MANA_POSITION_IMAGE)
 
     @staticmethod
-    def find_health(window_state: State[Image]) -> Position:
-        return locate_image(window_state, HEALTH_POSITION_IMAGE)
+    def find_health(window: Window) -> Position:
+        return locate_image(window.ndarray(), HEALTH_POSITION_IMAGE)
 
 
 @attr.s(slots=True, frozen=True)
@@ -51,9 +53,9 @@ class StatusColor:
 
     @staticmethod
     def find():
-        mana = cv2.imread(MANA_STATUS_IMAGE, cv2.COLOR_RGB2BGR)
+        mana = cv2.imread(MANA_STATUS_IMAGE, cv2.COLOR_BGR2GRAY)
         mc = mana[6, 2]
-        health = cv2.imread(HEALTH_STATUS_IMAGE, cv2.COLOR_RGB2BGR)
+        health = cv2.imread(HEALTH_STATUS_IMAGE, cv2.COLOR_BGR2GRAY)
         hc = health[6, 2]
         return StatusColor(mc, hc)
 

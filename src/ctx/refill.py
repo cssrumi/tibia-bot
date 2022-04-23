@@ -8,7 +8,7 @@ from ctx.player import PlayerStateManager
 from ctx.window import WindowStateManagerTask
 from domain.container import Container
 from domain.game.game import Game
-from domain.game.locate import locate_image, Position, load_image
+from domain.game.locate import Position, load_image
 from domain.task import Task, StoppableThread
 
 MARGIN = Position(0, 20)
@@ -48,8 +48,13 @@ class RefillTask(Task):
             if player_state.is_empty() or not player_state.value.is_healthy():
                 time.sleep(1)
                 continue
-            from_container_pos = Container.find_first_not_empty(state, self._from_container_img).position
-            to_container_pos = Container.find_first(state, self._to_container_img).position
+            from_container = Container.find_first_not_empty(state, self._from_container_img)
+            to_container = Container.find_first(state, self._to_container_img)
+            if not from_container or not to_container:
+                time.sleep(1)
+                continue
+            from_container_pos = from_container.position
+            to_container_pos = to_container.position
             if not to_container_pos.is_empty() and not from_container_pos.is_empty():
                 click_pos = from_container_pos.plus(ITEM_POSITION).minus(MARGIN)
                 release_pos = to_container_pos.plus(ITEM_POSITION).minus(MARGIN)

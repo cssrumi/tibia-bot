@@ -1,27 +1,27 @@
 from ctypes import windll
 
 import attr
+import cv2
+import numpy
 import win32gui
 import win32ui
 from PIL import Image, ImageGrab
 
 from domain.game.game import Game
 
-tibia_hwnd = win32gui.FindWindowEx(None, None, None, 'Tibia - Mietar')
-
 
 @attr.s
 class ApplicationGrabber:
     name = attr.ib(type=str)
 
-    def grab(self):
+    def grab(self) -> Image:
         raise NotImplementedError()
 
 
 @attr.s
 class PilApplicationGrabber(ApplicationGrabber):
 
-    def grab(self):
+    def grab(self) -> Image:
         return ImageGrab.grab()
 
 
@@ -37,7 +37,7 @@ class Win32ApplicationGrabber(ApplicationGrabber):
         self.w = right - left
         self.h = bot - top
 
-    def grab(self):
+    def grab(self) -> Image:
         hwnd = self.hwnd
         hwndDC = win32gui.GetWindowDC(hwnd)
         mfcDC = win32ui.CreateDCFromHandle(hwndDC)
@@ -83,7 +83,7 @@ class ApplicationGrabberFacade(ApplicationGrabber):
     def find_grabber(self):
         return self.active_window_grabber if self.game.is_active() else self.inactive_window_grabber
 
-    def grab(self):
+    def grab(self) -> Image:
         grabber = self.find_grabber()
         img = grabber.grab()
         return img

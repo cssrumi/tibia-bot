@@ -46,7 +46,8 @@ class ExchangeTask(Task):
             if player_state.is_empty() or not player_state.value.is_healthy():
                 time.sleep(1)
                 continue
-            cash = locate_image(state, self._exchange_img, precision=0.92)
+            origin = state.get().ndarray()
+            cash = locate_image(origin, self._exchange_img, precision=0.92)
             if not cash.is_empty():
                 pos_to_click = cash.plus(self.exchange_img_center).minus(MARGIN)
                 self.game.controller.click(MouseButtons.RIGHT, pos_to_click)
