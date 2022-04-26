@@ -17,10 +17,11 @@ class Monster(Enum):
         self._image = None
 
     def image(self):
-        if not self._image:
+        if not self._image and self._image_loc:
             self._image = load_image(self._image_loc)
         return self._image
 
+    UNKNOWN = None
     NECROMANCER = "../image/monsters/necromancer.png"
 
 
