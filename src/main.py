@@ -8,6 +8,7 @@ from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.refill import RefillTask
 from ctx.window import WindowStateManagerTask
+from domain.battle import BattleList, BattleListStateManager
 from domain.container import Quivers, Backpacks, Depots
 from domain.game.game import Game
 from domain.game.control import Keys, MouseButtons
@@ -67,8 +68,43 @@ def mietar():
     return game
 
 
+def pythonista():
+    spells = [
+        Spell(Keys.F1, min_mana=5, min_health=88),
+    ]
+    potions = [
+        Potion(Keys.F4, min_mana=70),
+    ]
+    combo = [
+        AttackSpell(Keys.N1, min_mana=5, cooldown=2),
+    ]
+
+    game = Game('Tibia - Pythonista')
+
+    wsmt = WindowStateManagerTask(game, delay=0)
+    psm = PlayerStateManager()
+    pil = PlayerImageListener(psm)
+    wsmt.add_update_listener(pil.update_listener)
+
+    HealerTask(game, psm, spells=spells, potions=potions)
+    FoodEaterTask(game, key=Keys.F9)
+
+    MagicTrainingTask(game, psm, key=Keys.F1, min_mana=90)
+    ExchangeTask(game, psm, wsmt)
+    cc = ComboCaster(game, psm, combo)
+    ComboSwitch(cc, key=Keys.CAPS_LOCK)
+
+    battle = BattleList(game, wsmt)
+    blsmt = BattleListStateManager(battle)
+
+    AutoTargetTask(game, blsmt)
+
+    return game
+
+
 def main():
-    game = mietar()
+    # game = mietar()
+    game = pythonista()
     game.start_all()
     game.await_exit()
 

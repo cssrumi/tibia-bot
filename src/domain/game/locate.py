@@ -35,12 +35,12 @@ class Position:
         return Position.__empty
 
 
-def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True) -> Position:
+def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True, method: int = cv2.TM_CCOEFF_NORMED) -> Position:
     if origin is None:
         print("Origin was empty")
         return Position.empty()
     template = load_image(image)
-    res = cv2.matchTemplate(origin, template, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(origin, template, method)
     min_val, located_precision, min_loc, position = cv2.minMaxLoc(res)
     if located_precision > precision:
         if start:
@@ -51,13 +51,14 @@ def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True) -> Pos
     return Position.empty()
 
 
-def locate_image_gen(origin: numpy.ndarray, image, precision=0.8, start=True) -> Generator[Position, None, None]:
+def locate_image_gen(origin: numpy.ndarray, image, precision=0.8, start=True, method: int = cv2.TM_CCOEFF_NORMED) -> \
+Generator[Position, None, None]:
     if origin is None:
         print("Origin was empty")
         yield Position.empty()
 
     template = load_image(image)
-    res = cv2.matchTemplate(origin, template, cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(origin, template, method)
     positions = np.where(res > precision)
     for position in zip(*positions[::-1]):
         if start:
@@ -68,11 +69,11 @@ def locate_image_gen(origin: numpy.ndarray, image, precision=0.8, start=True) ->
     yield
 
 
-def load_image(image: Union[str, numpy.ndarray]) -> numpy.ndarray:
+def load_image(image: Union[str, numpy.ndarray], mask: int = 0) -> numpy.ndarray:
     if isinstance(image, numpy.ndarray):
         return image
     if isinstance(image, str):
-        return cv2.imread(image, 0)
+        return cv2.imread(image, mask)
     raise RuntimeError("Unable to load image of type:" + type(image))
 
 

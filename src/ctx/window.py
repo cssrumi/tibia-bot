@@ -11,21 +11,24 @@ from domain.state import StateManagerTask, State
 @attr.s
 class Window:
     _image = attr.ib(type=Image)
-    _ndarray = attr.ib(type=numpy.ndarray)
+    _ndarray_gray = attr.ib(type=numpy.ndarray)
+    _ndarray_bgr = attr.ib(type=numpy.ndarray)
 
     def __bool__(self):
-        return self._ndarray.size != 0
+        return self._ndarray_gray.size != 0
 
     def image(self):
         return self._image
 
     def ndarray(self):
-        return self._ndarray
+        return self._ndarray_gray
+
+    def ndarray_bgr(self):
+        return self._ndarray_bgr
 
 
 @attr.s
 class WindowStateManagerTask(StateManagerTask[Window]):
-    on_active_only = attr.ib(type=bool, default=False, kw_only=True)
     grabber = attr.ib(type=ApplicationGrabber, init=False)
 
     def __attrs_post_init__(self):
@@ -34,12 +37,12 @@ class WindowStateManagerTask(StateManagerTask[Window]):
 
     def new_value(self) -> Window:
         image = self.grabber.grab()
-        return Window(image, self._convert_image(image))
+        return Window(image, self._convert_image(image), self._convert_image(image, cv2.COLOR_RGB2BGR))
 
     @staticmethod
-    def _convert_image(image: Image) -> numpy.ndarray:
+    def _convert_image(image: Image, mask: int = cv2.COLOR_RGBA2GRAY) -> numpy.ndarray:
         np_img = numpy.array(image)
-        return cv2.cvtColor(np_img, cv2.COLOR_BGR2GRAY)
+        return cv2.cvtColor(np_img, mask)
 
 
 screen_path = '../image/screen/'

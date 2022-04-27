@@ -40,8 +40,8 @@ class StateManager(Generic[T]):
 @attr.s
 class StateManagerTask(Task, StateManager[T], Generic[T]):
     game = attr.ib()
-    delay = attr.ib(type=float, default=0.1, kw_only=True)
-    on_active_only = attr.ib(type=bool, default=True, kw_only=True)
+    delay = attr.ib(type=float, default=0.0, kw_only=True)
+    on_active_only = attr.ib(type=bool, default=False, kw_only=True)
 
     def _run(self):
         self.thread = StoppableThread(target=self.executor, args=(), daemon=True)
@@ -52,8 +52,8 @@ class StateManagerTask(Task, StateManager[T], Generic[T]):
             start = int(time.time_ns())
             if self.game.is_active() or not self.on_active_only:
                 self.update(self.new_value())
-                # if self.delay:
-                #     time.sleep(self.delay)
+                if self.delay:
+                    time.sleep(self.delay)
                 end_ = int((time.time_ns()) - start) / 1_000_000
                 print(f"Total state execution time of {self.__class__.__name__}: {end_ if end_ > 0 else 0} ms")
             else:

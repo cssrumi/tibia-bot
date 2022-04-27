@@ -1,9 +1,8 @@
 import attr
 import cv2
-import numpy
 
 from ctx.window import Window
-from domain.game.locate import Position, locate_image
+from domain.game.locate import Position, locate_image, load_image
 from domain.state import State
 
 MANA_POSITION_IMAGE = '../image/mana.png'

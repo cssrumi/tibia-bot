@@ -31,6 +31,7 @@ class Keys:
     F10 = Key('{F10}', PPKey.f10)
     F11 = Key('{F11}', PPKey.f11)
     F12 = Key('{F12}', PPKey.f12)
+    N1 = Key('{1}', None)
     CAPS_LOCK = Key('{CAPSLOCK}', PPKey.caps_lock)
     SPACE = Key('{SPACE}', PPKey.space)
 
@@ -70,6 +71,12 @@ class Controller:
     def click(self, button: MouseButton, pos_to_click: Position):
         with self.mouse_lock:
             self.window.click(button=button, coords=pos_to_click.tuple())
+            time.sleep(self.mouse_delay)
+
+    def move(self, pos_to_move: Position):
+        with self.mouse_lock:
+            move_lParam = self.pos_to_lParam(pos_to_move)
+            win32gui.PostMessage(self.hwnd, win32con.WM_MOUSEMOVE, None, move_lParam)
             time.sleep(self.mouse_delay)
 
     def drag_mouse(self, press_pos: Position, release_pos: Position):

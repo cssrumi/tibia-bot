@@ -59,7 +59,8 @@ class Win32ApplicationGrabber(ApplicationGrabber):
             'raw',
             'BGRX',
             0,
-            1)
+            1
+        )
 
         win32gui.DeleteObject(saveBitMap.GetHandle())
         saveDC.DeleteDC()

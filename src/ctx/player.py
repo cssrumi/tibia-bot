@@ -1,6 +1,4 @@
 import attr
-import cv2
-import numpy
 import numpy as np
 
 from ctx.window import Window
@@ -32,7 +30,7 @@ class PlayerStateManager(StateManager[Player]):
         self.status_location = StatusLocation.find(state)
 
     def create_new_player(self, state: State[Window]) -> Player:
-        origin = cv2.cvtColor(numpy.array(state.get().image()), cv2.COLOR_RGB2BGR)
+        origin = state.get().ndarray_bgr()
 
         mx = self.status_location.mana_status_pos.x
         my = self.status_location.mana_status_pos.y
@@ -57,4 +55,5 @@ class PlayerImageListener(Listener[Window]):
         if state.is_empty():
             pass
         new_player = self.psm.create_new_player(state)
+        print(new_player)
         self.psm.update(new_player)
