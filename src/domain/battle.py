@@ -44,7 +44,6 @@ class BattleList:
         if window_state.is_empty():
             return
         origin = window_state.get().ndarray()
-        # Image.fromarray(origin).show()
         self.start_pos = locate_image(origin, BattleListElements.START)
         self.fixed_start_pos = self.start_pos.minus(MARGIN)
         battle_origin = origin[self.start_pos.y:, self.start_pos.x:]

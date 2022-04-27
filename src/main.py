@@ -48,11 +48,15 @@ def mietar():
     MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
     MagicTrainingTask(game, psm, key=Keys.F10, min_mana=90)
     ExchangeTask(game, psm, wsmt)
-    cc = ComboCaster(game, psm, combo)
-    ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    AutoTargetTask(game)
     RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
     AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
+    # -- ATTACK --
+    battle = BattleList(game, wsmt)
+    blsmt = BattleListStateManager(battle)
+    AutoTargetTask(game, blsmt)
+    cc = ComboCaster(game, psm, blsmt, combo)
+    ComboSwitch(cc, key=Keys.CAPS_LOCK)
+
 
     # -- Training --
     # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
@@ -91,12 +95,12 @@ def pythonista():
 
     MagicTrainingTask(game, psm, key=Keys.F1, min_mana=90)
     ExchangeTask(game, psm, wsmt)
-    cc = ComboCaster(game, psm, combo)
-    ComboSwitch(cc, key=Keys.CAPS_LOCK)
 
     battle = BattleList(game, wsmt)
     blsmt = BattleListStateManager(battle)
 
+    cc = ComboCaster(game, psm, blsmt, combo)
+    ComboSwitch(cc, key=Keys.CAPS_LOCK)
     AutoTargetTask(game, blsmt)
 
     return game

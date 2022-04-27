@@ -6,6 +6,7 @@ import attr
 from pynput.keyboard import Key as PPKey, Listener
 
 from ctx.player import PlayerStateManager, Player
+from domain.battle import BattleListStateManager
 from domain.cast import Cast
 from domain.game.control import Key
 from domain.game.game import Game
@@ -34,6 +35,7 @@ class AttackRune(Cast):
 class ComboCaster(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
+    blsm = attr.ib(type=BattleListStateManager)
     cast_list = attr.ib(type=List[Cast])
     delay = attr.ib(type=float, default=0.1, kw_only=True)
     is_stopped = attr.ib(type=bool, default=True)
@@ -56,6 +58,9 @@ class ComboCaster(Task):
                 continue
             for cast in cycle(self.cast_list):
                 if self.is_stopped:
+                    break
+                battle_state = self.blsm.get()
+                if battle_state.is_empty() or len(battle_state.get()) == 0:
                     break
                 if cast.should_cast(player):
                     controller = self.game.controller
