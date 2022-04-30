@@ -1,0 +1,15 @@
+{
+  "attackType": "DEFENSIVE",
+  "waypoints": [
+    {
+      "x": 1,
+      "y": 1,
+      "waypointType": "WALK"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "waypointType": "WALK"
+    }
+  ]
+}

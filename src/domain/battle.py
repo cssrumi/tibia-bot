@@ -105,7 +105,7 @@ class BattleListStateManager(StateManagerTask[List[DetectedMonster]]):
 
     def __attrs_post_init__(self):
         self.game = self.battle.game
-        self.battle.game.add_task(self)
+        self.game.add_task(self)
         print(self.__class__.__name__, 'added')
 
     def new_value(self) -> List[DetectedMonster]:

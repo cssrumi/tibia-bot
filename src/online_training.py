@@ -5,7 +5,7 @@ from domain.game.game import Game
 from domain.task import StoppableThread
 
 
-def online_training(character: str, food_key: Key, mana_burn_key: Key):
+def online_training(character: str, food_key: Key, mana_burn_key: Key, mana_burn_key2: Key = None):
     game = Game(f'Tibia - {character}')
     burner = ShadowBurner(
         game,
@@ -13,34 +13,36 @@ def online_training(character: str, food_key: Key, mana_burn_key: Key):
         mana_burn_key=mana_burn_key
     )
     game.add_task(burner)
+    if mana_burn_key2:
+        burner2 = ShadowBurner(
+            game,
+            food_key=food_key,
+            mana_burn_key=mana_burn_key2
+        )
+        game.add_task(burner2)
     game.start_all()
     game.await_exit()
 
 
-def online_training_thread(character: str, food_key: Key, mana_burn_key: Key):
-    return StoppableThread(target=online_training, args=(character, food_key, mana_burn_key), daemon=False)
+def online_training_thread(character: str, food_key: Key, mana_burn_key: Key, mana_burn_key2: Key = None):
+    return StoppableThread(target=online_training, args=(character, food_key, mana_burn_key, mana_burn_key2), daemon=False)
 
 
 def main():
-    deidara = online_training_thread(
-        'Deidara',
+    mietar = online_training_thread(
+        'Mietar',
         food_key=Key.f9,
-        mana_burn_key=Key.f2
+        mana_burn_key=Key.f3
     )
-    paler = online_training_thread(
-        'Paler',
+    zaraki = online_training_thread(
+        'Zaraki Kenpachi',
         food_key=Key.f9,
-        mana_burn_key=Key.f2
-    )
-    functional_scala = online_training_thread(
-        'Functional Scala',
-        food_key=Key.f9,
-        mana_burn_key=Key.f1
+        mana_burn_key='3',
+        mana_burn_key2=Key.f7
     )
     [training.start() for training in [
-        deidara,
-        paler,
-        functional_scala
+        mietar,
+        zaraki,
     ]]
 
 

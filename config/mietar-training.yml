@@ -1,0 +1,47 @@
+title: Tibia - Mietar
+
+autoheal:
+  enabled: true
+  spells:
+    - key: F3
+      minMana: 3
+      minHealth: 88
+  potions:
+    - key: F4
+      minMana: 70
+    - key: F5
+      minHealth: 50
+      priority: -1
+
+combo:
+  enabled: false
+  switch:
+    enabled: false
+
+foodeater:
+  enabled: true
+  key: F9
+
+exchange:
+  enabled: false
+
+autotarget:
+  enabled: false
+
+magictraining:
+  enabled: true
+  burners:
+    - key: F3
+      minMana: 70
+    - key: F10
+      minMana: 70
+
+refiller:
+  enabled: true
+  from:
+    container: DEPOT
+    type: BOX_XVIII
+  to:
+    container: BACKPACK
+    type: CRYSTAL
+  delay: 10

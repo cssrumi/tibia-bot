@@ -32,6 +32,9 @@ class Keys:
     F11 = Key('{F11}', PPKey.f11)
     F12 = Key('{F12}', PPKey.f12)
     N1 = Key('{1}', None)
+    N2 = Key('{2}', None)
+    N3 = Key('{3}', None)
+    N4 = Key('{4}', None)
     CAPS_LOCK = Key('{CAPSLOCK}', PPKey.caps_lock)
     SPACE = Key('{SPACE}', PPKey.space)
 

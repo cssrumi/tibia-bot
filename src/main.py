@@ -9,6 +9,7 @@ from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.refill import RefillTask
 from ctx.window import WindowStateManagerTask
 from domain.battle import BattleList, BattleListStateManager
+from domain.cave import CaveConfig, Caves, CaveTask
 from domain.container import Quivers, Backpacks, Depots
 from domain.game.game import Game
 from domain.game.control import Keys, MouseButtons
@@ -37,13 +38,6 @@ def mietar():
     HealerTask(game, psm, spells=spells, potions=potions)
     FoodEaterTask(game, key=Keys.F9)
 
-    # -- FULL AFK EXP --
-    # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
-    # cc = ComboCaster(game, psm, combo)
-    # ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    # AutoTargetTask(game)
-    # RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
-
     # -- EXP --
     MagicTrainingTask(game, psm, key=Keys.F3, min_mana=90)
     MagicTrainingTask(game, psm, key=Keys.F10, min_mana=90)
@@ -56,7 +50,6 @@ def mietar():
     AutoTargetTask(game, blsmt)
     cc = ComboCaster(game, psm, blsmt, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
-
 
     # -- Training --
     # MagicTrainingTask(game, psm, key=Keys.F3, min_mana=70)
@@ -102,13 +95,57 @@ def pythonista():
     cc = ComboCaster(game, psm, blsmt, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
     AutoTargetTask(game, blsmt)
+    cave_config = CaveConfig.read(*Caves.CYCLOPS)
+    CaveTask(cave_config, battle)
+
+    return game
+
+
+def zaraki():
+    spells = [
+        Spell(Keys.F1, min_mana=5, min_health=88),
+    ]
+    potions = [
+        Potion(Keys.F4, min_mana=30),
+        Potion(Keys.F5, min_health=80),
+        Potion(Keys.F6, min_health=50),
+    ]
+    # combo = [
+    #     AttackSpell(Keys.N4, min_mana=5, cooldown=4),
+    # ]
+    combo = [
+        AttackSpell(Keys.N3, min_mana=30, cooldown=0.1),
+        AttackSpell(Keys.F7, min_mana=20, cooldown=2),
+        AttackSpell(Keys.F8, min_mana=20, cooldown=2),
+    ]
+
+    game = Game('Tibia - Zaraki Kenpachi')
+
+    wsmt = WindowStateManagerTask(game, delay=0)
+    psm = PlayerStateManager()
+    pil = PlayerImageListener(psm)
+    wsmt.add_update_listener(pil.update_listener)
+
+    HealerTask(game, psm, spells=spells, potions=potions)
+    FoodEaterTask(game, key=Keys.F9)
+    MagicTrainingTask(game, psm, key=Keys.F1, min_mana=90)
+    # ExchangeTask(game, psm, wsmt)
+
+    battle = BattleList(game, wsmt)
+    blsmt = BattleListStateManager(battle)
+    cc = ComboCaster(game, psm, blsmt, combo)
+    ComboSwitch(cc, key=Keys.CAPS_LOCK)
+    AutoTargetTask(game, blsmt)
+    # cave_config = CaveConfig.read(*Caves.CYCLOPS)
+    # CaveTask(cave_config, battle)
 
     return game
 
 
 def main():
+    # game = pythonista()
     # game = mietar()
-    game = pythonista()
+    game = zaraki()
     game.start_all()
     game.await_exit()
 
