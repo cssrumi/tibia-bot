@@ -15,7 +15,7 @@ class Cast:
     min_mana = attr.ib(type=int, kw_only=True)
     min_health = attr.ib(type=int, kw_only=True)
     priority = attr.ib(type=int, default=0, kw_only=True)
-    cooldown = attr.ib(type=float, default=0.2, kw_only=True)
+    delay = attr.ib(type=float, default=0.2, kw_only=True)
 
     def should_cast(self, player: Player):
         raise NotImplementedError()
@@ -47,6 +47,6 @@ class Caster(Task):
                     continue
                 controller = self.game.controller
                 controller.press(cast.key)
-                if cast.cooldown:
-                    time.sleep(cast.cooldown)
+                if cast.delay:
+                    time.sleep(cast.delay)
                 break

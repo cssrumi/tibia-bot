@@ -16,6 +16,15 @@ class Spell(Cast):
 
 
 @attr.s
+class TimedSpell(Cast):
+    cooldown = attr.ib(type=float)
+    last_usage = attr.ib(type=float, default=0.0, kw_only=True)
+
+    def should_cast(self, player: Player):
+        return player.health <= self.min_health and player.mana >= self.min_mana
+
+
+@attr.s
 class Potion(Cast):
     min_mana = attr.ib(type=int, kw_only=True, default=100)
     min_health = attr.ib(type=int, kw_only=True, default=100)

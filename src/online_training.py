@@ -38,7 +38,7 @@ def main():
         'Zaraki Kenpachi',
         food_key=Key.f9,
         mana_burn_key='3',
-        mana_burn_key2=Key.f7
+        mana_burn_key2=Key.f1
     )
     [training.start() for training in [
         mietar,

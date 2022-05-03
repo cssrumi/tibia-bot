@@ -24,8 +24,8 @@ def mietar():
         Potion(Keys.F5, min_health=50, priority=-1),
     ]
     combo = [
-        AttackSpell(Keys.F7, min_mana=15, cooldown=2),
-        AttackRune(Keys.F8, cooldown=2)
+        AttackSpell(Keys.F7, min_mana=15, delay=2),
+        AttackRune(Keys.F8, delay=2)
     ]
 
     game = Game('Tibia - Mietar')
@@ -43,7 +43,7 @@ def mietar():
     MagicTrainingTask(game, psm, key=Keys.F10, min_mana=90)
     ExchangeTask(game, psm, wsmt)
     RefillTask(game, psm, wsmt, from_container=Backpacks.CRYSTAL, to_container=Quivers.BLUE)
-    AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
+    # AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
     # -- ATTACK --
     battle = BattleList(game, wsmt)
     blsmt = BattleListStateManager(battle)
@@ -73,7 +73,7 @@ def pythonista():
         Potion(Keys.F4, min_mana=70),
     ]
     combo = [
-        AttackSpell(Keys.N1, min_mana=5, cooldown=2),
+        AttackSpell(Keys.N1, min_mana=5, delay=2),
     ]
 
     game = Game('Tibia - Pythonista')
@@ -103,20 +103,17 @@ def pythonista():
 
 def zaraki():
     spells = [
-        Spell(Keys.F1, min_mana=5, min_health=88),
+        Spell(Keys.F1, min_mana=5, min_health=92),
     ]
     potions = [
         Potion(Keys.F4, min_mana=30),
-        Potion(Keys.F5, min_health=80),
-        Potion(Keys.F6, min_health=50),
+        Potion(Keys.F5, min_health=78),
     ]
-    # combo = [
-    #     AttackSpell(Keys.N4, min_mana=5, cooldown=4),
-    # ]
     combo = [
-        AttackSpell(Keys.N3, min_mana=30, cooldown=0.1),
-        AttackSpell(Keys.F7, min_mana=20, cooldown=2),
-        AttackSpell(Keys.F8, min_mana=20, cooldown=2),
+        AttackSpell(Keys.N3, min_mana=30, delay=0.1),
+        AttackSpell(Keys.F7, min_mana=20, delay=2),
+        AttackSpell(Keys.N2, min_mana=20, delay=0.1),
+        AttackSpell(Keys.F8, min_mana=20, delay=2),
     ]
 
     game = Game('Tibia - Zaraki Kenpachi')
@@ -130,12 +127,13 @@ def zaraki():
     FoodEaterTask(game, key=Keys.F9)
     MagicTrainingTask(game, psm, key=Keys.F1, min_mana=90)
     # ExchangeTask(game, psm, wsmt)
+    # AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
 
     battle = BattleList(game, wsmt)
     blsmt = BattleListStateManager(battle)
     cc = ComboCaster(game, psm, blsmt, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    AutoTargetTask(game, blsmt)
+    # AutoTargetTask(game, blsmt)
     # cave_config = CaveConfig.read(*Caves.CYCLOPS)
     # CaveTask(cave_config, battle)
 

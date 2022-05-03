@@ -65,8 +65,8 @@ class ComboCaster(Task):
                 if cast.should_cast(player):
                     controller = self.game.controller
                     controller.press(cast.key)
-                if cast.cooldown:
-                    time.sleep(cast.cooldown)
+                if cast.delay:
+                    time.sleep(cast.delay)
                 if self.delay:
                     time.sleep(self.delay)
 
