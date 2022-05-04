@@ -5,7 +5,7 @@ import numpy
 from pywinauto import Application
 
 from ctx.player import PlayerStateManager
-from ctx.window import WindowStateManagerTask
+from ctx.window import WindowStateManager
 from domain.container import Container
 from domain.game.game import Game
 from domain.game.locate import Position, load_image
@@ -20,7 +20,7 @@ ITEM_POSITION = Position(30, 30)
 class RefillTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
-    wsm = attr.ib(type=WindowStateManagerTask)
+    wsm = attr.ib(type=WindowStateManager)
     app = attr.ib(init=False, type=Application)
     from_container = attr.ib(kw_only=True, type=str)
     to_container = attr.ib(kw_only=True, type=str)

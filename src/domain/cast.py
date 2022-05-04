@@ -20,6 +20,10 @@ class Cast:
     def should_cast(self, player: Player):
         raise NotImplementedError()
 
+    @classmethod
+    def deserialize(cls, cfg: dict):
+        return cls(**cfg)
+
 
 @attr.s
 class Caster(Task):

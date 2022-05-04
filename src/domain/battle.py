@@ -5,7 +5,7 @@ import cv2
 import numpy
 from PIL import Image
 
-from ctx.window import WindowStateManagerTask
+from ctx.window import WindowStateManager
 from domain.game.game import Game
 from domain.game.locate import Position, locate_image, load_image, locate_image_gen
 from domain.monster import DetectedMonster, Monster
@@ -26,7 +26,7 @@ class BattleListElements:
 @attr.s
 class BattleList:
     game = attr.ib(type=Game)
-    wsmt = attr.ib(type=WindowStateManagerTask)
+    wsmt = attr.ib(type=WindowStateManager)
     start_pos = attr.ib(default=Position.empty(), type=Position)
     fixed_start_pos = attr.ib(default=Position.empty(), type=Position)
     end_pos = attr.ib(default=Position.empty(), type=Position)

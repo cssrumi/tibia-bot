@@ -7,7 +7,7 @@ from ctx.loot import AutoLootTask
 from ctx.magictraining import MagicTrainingTask
 from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.refill import RefillTask
-from ctx.window import WindowStateManagerTask
+from ctx.window import WindowStateManager
 from domain.battle import BattleList, BattleListStateManager
 from domain.cave import CaveConfig, Caves, CaveTask
 from domain.container import Quivers, Backpacks, Depots
@@ -30,7 +30,7 @@ def mietar():
 
     game = Game('Tibia - Mietar')
 
-    wsmt = WindowStateManagerTask(game, delay=0)
+    wsmt = WindowStateManager(game, delay=0)
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
     wsmt.add_update_listener(pil.update_listener)
@@ -78,7 +78,7 @@ def pythonista():
 
     game = Game('Tibia - Pythonista')
 
-    wsmt = WindowStateManagerTask(game, delay=0)
+    wsmt = WindowStateManager(game, delay=0)
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
     wsmt.add_update_listener(pil.update_listener)
@@ -118,7 +118,7 @@ def zaraki():
 
     game = Game('Tibia - Zaraki Kenpachi')
 
-    wsmt = WindowStateManagerTask(game, delay=0)
+    wsmt = WindowStateManager(game, delay=0)
     psm = PlayerStateManager()
     pil = PlayerImageListener(psm)
     wsmt.add_update_listener(pil.update_listener)
