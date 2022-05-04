@@ -17,14 +17,13 @@ combo:
   enabled: true
   attacks:
     - key: F7
-      minMana: 15
-      cooldown: 2
+      min_mana: 15
+      delay: 2
       type: SPELL
     - key: F8
-      cooldown: 2
+      delay: 2
       type: RUNE
   switch:
-    enabled: true
     key: CAPS_LOCK
 
 foodeater:

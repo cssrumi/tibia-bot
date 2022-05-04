@@ -4,13 +4,14 @@ import attr
 
 from cfg.application import Context
 from ctx.autotarget import AutoTargetTask
-from ctx.combo import ComboCaster, ComboSwitch
+from ctx.combo import ComboCaster, ComboSwitch, AttackTypes
 from ctx.exchange import ExchangeTask
 from ctx.foodeater import FoodEaterTask
 from ctx.healer import Spell, Potion, HealerTask
 from ctx.loot import AutoLootTask
 from ctx.magictraining import MagicTrainingTask
 from ctx.refill import RefillTask
+from domain.cast import Cast
 from domain.container import ContainerTypes
 from domain.game.control import Keys, MouseButtons
 
@@ -77,7 +78,7 @@ class AutoHeal(Module):
 ModuleRegistry.register(AutoHeal)
 
 
-# TODO: COMBO
+@attr.s
 class Combo(Module):
     caster = attr.ib(type=Optional[ComboCaster], default=None, kw_only=True)
     switch = attr.ib(type=Optional[ComboSwitch], default=None, kw_only=True)
@@ -88,7 +89,30 @@ class Combo(Module):
 
     @staticmethod
     def load_enabled(module_config: dict, context: Context) -> 'Combo':
-        return Combo.load_disabled()
+        attacks_config = module_config['attacks']
+        attacks = [Combo._deserialize_attack(attack_cfg) for attack_cfg in attacks_config] if attacks_config else []
+        caster = ComboCaster(
+            context.game,
+            context.player_state_manager,
+            context.battle_state_manager,
+            attacks
+        )
+        switch_key = Keys.from_str(module_config['switch']['key'])
+        switch = ComboSwitch(
+            caster,
+            key=switch_key
+        )
+        return Combo(True, caster=caster, switch=switch)
+
+    @staticmethod
+    def _deserialize_attack(attack_config: dict) -> Cast:
+        attack_type = AttackTypes.from_str(attack_config['type'])
+        attack_config = attack_config.copy()
+        attack_config.pop('type')
+        return attack_type.deserialize(attack_config)
+
+
+ModuleRegistry.register(Combo)
 
 
 @attr.s
