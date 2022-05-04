@@ -126,14 +126,14 @@ def zaraki():
     HealerTask(game, psm, spells=spells, potions=potions)
     FoodEaterTask(game, key=Keys.F9)
     MagicTrainingTask(game, psm, key=Keys.F1, min_mana=90)
-    # ExchangeTask(game, psm, wsmt)
-    # AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
+    ExchangeTask(game, psm, wsmt)
+    AutoLootTask(game, psm, wsmt, MouseButtons.RIGHT, delay=10)
 
     battle = BattleList(game, wsmt)
     blsmt = BattleListStateManager(battle)
     cc = ComboCaster(game, psm, blsmt, combo)
     ComboSwitch(cc, key=Keys.CAPS_LOCK)
-    # AutoTargetTask(game, blsmt)
+    AutoTargetTask(game, blsmt)
     # cave_config = CaveConfig.read(*Caves.CYCLOPS)
     # CaveTask(cave_config, battle)
 
