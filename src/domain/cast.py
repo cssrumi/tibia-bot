@@ -4,7 +4,7 @@ from typing import List
 import attr
 
 from ctx.player import PlayerStateManager, Player
-from domain.game.control import Key
+from domain.game.control import Key, Keys
 from domain.game.game import Game
 from domain.task import Task, StoppableThread
 
@@ -22,6 +22,9 @@ class Cast:
 
     @classmethod
     def deserialize(cls, cfg: dict):
+        key = cfg['key']
+        cfg = cfg.copy()
+        cfg['key'] = Keys.from_str(key)
         return cls(**cfg)
 
 

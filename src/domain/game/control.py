@@ -31,12 +31,16 @@ class Keys:
     F10 = Key('{F10}', PPKey.f10)
     F11 = Key('{F11}', PPKey.f11)
     F12 = Key('{F12}', PPKey.f12)
-    N1 = Key('{1}', None)
-    N2 = Key('{2}', None)
-    N3 = Key('{3}', None)
-    N4 = Key('{4}', None)
+    N1 = Key('{1}', '1')
+    N2 = Key('{2}', '2')
+    N3 = Key('{3}', '3')
+    N4 = Key('{4}', '4')
     CAPS_LOCK = Key('{CAPSLOCK}', PPKey.caps_lock)
     SPACE = Key('{SPACE}', PPKey.space)
+
+    @staticmethod
+    def from_str(key: str) -> Key:
+        return Keys.__dict__[key.upper()]
 
 
 MouseButton = str
@@ -45,6 +49,10 @@ MouseButton = str
 class MouseButtons:
     RIGHT = 'right'
     LEFT = 'left'
+
+    @staticmethod
+    def from_str(value: str) -> MouseButton:
+        return MouseButtons.__dict__[value.upper()]
 
 
 def control_click(x, y, handle, button: MouseButtons = MouseButtons.RIGHT):

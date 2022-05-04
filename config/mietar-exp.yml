@@ -4,13 +4,13 @@ autoheal:
   enabled: true
   spells:
     - key: F3
-      minMana: 3
-      minHealth: 88
+      min_mana: 3
+      min_health: 88
   potions:
     - key: F4
-      minMana: 70
+      min_mana: 70
     - key: F5
-      minHealth: 50
+      min_health: 50
       priority: -1
 
 combo:
@@ -37,20 +37,25 @@ exchange:
 autotarget:
   enabled: true
 
+autoloot:
+  enabled: true
+  mouse_button: RIGHT
+  delay: 10
+
 magictraining:
   enabled: true
   burners:
     - key: F3
-      minMana: 90
+      min_mana: 90
     - key: F10
-      minMana: 90
+      min_mana: 90
 
 refiller:
   enabled: true
   from:
-    container: BACKPACK
-    type: CRYSTAL
+    container: CRYSTAL
+    type: BACKPACK
   to:
-    container: QUIVER
-    type: BLUE
+    container: BLUE
+    type: QUIVER
   delay: 10

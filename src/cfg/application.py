@@ -1,4 +1,5 @@
 import attr
+from yaml import safe_load as yaml_load, YAMLError
 
 from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.window import WindowStateManager
@@ -23,15 +24,30 @@ class Context:
         battle = BattleList(self.game, self.window_state_manager)
         self.battle_state_manager = BattleListStateManager(battle)
 
+    @staticmethod
+    def create(config: dict) -> 'Context':
+        game_title = config['title']
+        return Context(game_title)
+
 
 @attr.s
 class Application:
-    game = attr.ib(type=Game)
-    context = attr.ib(type=Context)
+    context = attr.ib(type=Context, init=False)
 
-    def init_context(self, config: dict):
-        self.context
+    def _load_config(self, config_path: str) -> dict:
+        with open(config_path, "r") as stream:
+            try:
+                return yaml_load(stream)
+            except YAMLError as exc:
+                raise RuntimeError("Unable to load cfg: " + config_path + ". Reason: " + str(exc))
+
+    def init(self, config_path: str):
+        config = self._load_config(config_path)
+        self.context = Context.create(config)
+        from cfg.module import ModuleRegistry
+        [print(module.load(config, self.context).name(), "loaded!") for module in ModuleRegistry.modules]
+        print("Application initialized!")
 
     def run(self):
-        self.game.start_all()
-        self.game.await_exit()
+        self.context.game.start_all()
+        self.context.game.await_exit()
