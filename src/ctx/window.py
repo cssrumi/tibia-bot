@@ -28,7 +28,7 @@ class Window:
 
 
 @attr.s
-class WindowStateManagerTask(StateManagerTask[Window]):
+class WindowStateManager(StateManagerTask[Window]):
     grabber = attr.ib(type=ApplicationGrabber, init=False)
 
     def __attrs_post_init__(self):

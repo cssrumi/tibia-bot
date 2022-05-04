@@ -1,28 +1,36 @@
-title: Tibia - Mietar
+title: Tibia - Zaraki Kenpachi
 
 autoheal:
   enabled: true
   spells:
-    - key: F3
+    - key: F1
       min_mana: 3
-      min_health: 88
+      min_health: 92
   potions:
     - key: F4
-      min_mana: 70
+      min_mana: 30
     - key: F5
-      min_health: 50
-      priority: -1
+      min_health: 78
 
 combo:
   enabled: true
   attacks:
-    - key: F7
+    - key: N3
       min_mana: 15
+      delay: 0.1
+      type: SPELL
+    - key: F7
+      min_mana: 10
       delay: 2
       type: SPELL
+    - key: N2
+      min_mana: 11
+      delay: 0.1
+      type: SPELL
     - key: F8
+      min_mana: 10
       delay: 2
-      type: RUNE
+      type: SPELL
   switch:
     key: CAPS_LOCK
 
@@ -44,17 +52,8 @@ autoloot:
 magictraining:
   enabled: true
   burners:
-    - key: F3
-      min_mana: 90
-    - key: F10
+    - key: F1
       min_mana: 90
 
 refiller:
-  enabled: true
-  from:
-    container: CRYSTAL
-    type: BACKPACK
-  to:
-    container: BLUE
-    type: QUIVER
-  delay: 10
+  enabled: false

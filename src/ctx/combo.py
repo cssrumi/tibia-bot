@@ -31,6 +31,15 @@ class AttackRune(Cast):
         return True
 
 
+class AttackTypes:
+    SPELL = AttackSpell
+    RUNE = AttackRune
+
+    @staticmethod
+    def from_str(attack_type: str) -> Cast:
+        return AttackTypes.__dict__[attack_type.upper()]
+
+
 @attr.s
 class ComboCaster(Task):
     game = attr.ib(type=Game)

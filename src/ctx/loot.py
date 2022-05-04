@@ -5,7 +5,7 @@ import attr
 from pywinauto import Application
 
 from ctx.player import PlayerStateManager
-from ctx.window import WindowStateManagerTask, GameBox, GameWindow
+from ctx.window import WindowStateManager, GameBox, GameWindow
 from domain.game.game import Game
 from domain.task import Task, StoppableThread
 
@@ -14,7 +14,7 @@ from domain.task import Task, StoppableThread
 class AutoLootTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
-    wsm = attr.ib(type=WindowStateManagerTask)
+    wsm = attr.ib(type=WindowStateManager)
     loot_button = attr.ib(type=str)
     app = attr.ib(init=False, type=Application)
     delay = attr.ib(kw_only=True, type=float, default=60)

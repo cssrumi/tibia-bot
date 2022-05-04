@@ -1,4 +1,4 @@
-from typing import Generator, Optional
+from typing import Generator, Optional, Type
 
 import numpy
 
@@ -9,18 +9,35 @@ from domain.state import State
 containers_path = '../image/containers/'
 
 
-class Quivers:
+class Containers:
+
+    @classmethod
+    def from_str(cls, container: str) -> str:
+        return cls.__dict__[container.upper()]
+
+
+class Quivers(Containers):
     BLUE = containers_path + 'bluequiver.png'
 
 
-class Backpacks:
+class Backpacks(Containers):
     BLUE = containers_path + 'bluebackpack.png'
     BEACH = containers_path + 'beachbackpack.png'
     CRYSTAL = containers_path + 'crystalbackpack.png'
 
 
-class Depots:
+class Depots(Containers):
     BOX_XVIII = containers_path + 'depotboxxviii.png'
+
+
+class ContainerTypes:
+    QUIVER = Quivers
+    BACKPACK = Backpacks
+    DEPOT = Depots
+
+    @staticmethod
+    def from_str(c_type: str) -> Containers:
+        return ContainerTypes.__dict__[c_type.upper()]
 
 
 class Container:

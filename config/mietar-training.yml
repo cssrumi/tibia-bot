@@ -15,8 +15,6 @@ autoheal:
 
 combo:
   enabled: false
-  switch:
-    enabled: false
 
 foodeater:
   enabled: true

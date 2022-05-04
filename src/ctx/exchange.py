@@ -5,7 +5,7 @@ import numpy
 from pywinauto import Application
 
 from ctx.player import PlayerStateManager
-from ctx.window import WindowStateManagerTask
+from ctx.window import WindowStateManager
 from domain.game.control import MouseButtons
 from domain.game.game import Game
 from domain.game.locate import locate_image, Position, image_center, load_image
@@ -19,7 +19,7 @@ MARGIN = Position(0, 20)
 class ExchangeTask(Task):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
-    wsm = attr.ib(type=WindowStateManagerTask)
+    wsm = attr.ib(type=WindowStateManager)
     app = attr.ib(init=False, type=Application)
     exchange_img_path = attr.ib(kw_only=True, type=str, default=GP_IMAGE)
     exchange_img_center = attr.ib(init=False, type=Position)
