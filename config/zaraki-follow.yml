@@ -1,0 +1,57 @@
+title: Tibia - Zaraki Kenpachi
+
+autoheal:
+  enabled: true
+  spells:
+    - key: F1
+      min_mana: 3
+      min_health: 92
+  potions:
+    - key: F4
+      min_mana: 30
+    - key: F5
+      min_health: 78
+
+combo:
+  enabled: true
+  attacks:
+    - key: N3
+      min_mana: 15
+      delay: 0.1
+      type: SPELL
+    - key: F7
+      min_mana: 10
+      delay: 2
+      type: SPELL
+    - key: N2
+      min_mana: 11
+      delay: 0.1
+      type: SPELL
+    - key: F8
+      min_mana: 10
+      delay: 2
+      type: SPELL
+  switch:
+    key: CAPS_LOCK
+
+foodeater:
+  enabled: true
+  key: F9
+
+exchange:
+  enabled: true
+
+autotarget:
+  enabled: false
+
+autoloot:
+  enabled: false
+
+magictraining:
+  enabled: true
+  burners:
+    - key: F1
+      min_mana: 90
+
+refiller:
+  enabled: false
