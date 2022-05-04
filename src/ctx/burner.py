@@ -69,7 +69,7 @@ class ShadowBurner(Task):
     game = attr.ib(type=Game)
     food_key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
     mana_burn_key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
-    delay = attr.ib(init=False, kw_only=True, type=float, default=1.0)
+    delay = attr.ib(init=False, kw_only=True, type=float, default=1.05)
     hwnd = attr.ib(init=False, kw_only=False)
 
     def _run(self):
