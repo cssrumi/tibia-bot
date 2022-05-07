@@ -5,12 +5,12 @@ autoheal:
   spells:
     - key: F1
       min_mana: 3
-      min_health: 92
+      min_health: 94
   potions:
     - key: F4
       min_mana: 30
     - key: F5
-      min_health: 78
+      min_health: 80
 
 combo:
   enabled: true
