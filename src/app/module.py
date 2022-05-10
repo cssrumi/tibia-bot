@@ -2,7 +2,7 @@ from typing import List, Type, Optional
 
 import attr
 
-from cfg.application import Context
+from app.application import Context
 from ctx.autotarget import AutoTargetTask
 from ctx.combo import ComboCaster, ComboSwitch, AttackTypes
 from ctx.exchange import ExchangeTask

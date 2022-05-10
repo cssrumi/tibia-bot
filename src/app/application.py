@@ -1,6 +1,7 @@
 import attr
 from yaml import safe_load as yaml_load, YAMLError
 
+from app.gui import Gui, GuiHandlerRegistry
 from ctx.player import PlayerStateManager, PlayerImageListener
 from ctx.window import WindowStateManager
 from domain.battle import BattleListStateManager, BattleList
@@ -33,21 +34,25 @@ class Context:
 @attr.s
 class Application:
     context = attr.ib(type=Context, init=False)
+    gui = attr.ib(type=Gui, init=False)
 
     def _load_config(self, config_path: str) -> dict:
         with open(config_path, "r") as stream:
             try:
                 return yaml_load(stream)
             except YAMLError as exc:
-                raise RuntimeError("Unable to load cfg: " + config_path + ". Reason: " + str(exc))
+                raise RuntimeError("Unable to load app: " + config_path + ". Reason: " + str(exc))
 
     def init(self, config_path: str):
         config = self._load_config(config_path)
         self.context = Context.create(config)
-        from cfg.module import ModuleRegistry
+        from app.module import ModuleRegistry
         [print(module.load(config, self.context).name(), "loaded!") for module in ModuleRegistry.modules]
         print("Application initialized!")
+        self.gui = Gui()
+        [self.gui.register_handler(handler()) for handler in GuiHandlerRegistry.handlers]
 
     def run(self):
+        self.gui.show()
         self.context.game.start_all()
         self.context.game.await_exit()

@@ -1,5 +1,5 @@
-from cfg.application import Application
-from cfg.config import get_config_path
+from app.application import Application
+from app.config import get_config_path
 
 if __name__ == '__main__':
     app = Application()
