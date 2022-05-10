@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 import attr
@@ -17,10 +18,22 @@ class Spell(Cast):
 
 @attr.s
 class TimedSpell(Cast):
-    cooldown = attr.ib(type=float)
+    cooldown = attr.ib(type=float, default=0.0)
     last_usage = attr.ib(type=float, default=0.0, kw_only=True)
 
     def should_cast(self, player: Player):
+        should = self._should_cast(player)
+        if not should:
+            return False
+        if self.cooldown:
+            now_in_millis = datetime.datetime.now().microsecond / 1000
+            should = now_in_millis > self.last_usage + self.cooldown * 1000
+            if should:
+                self.last_usage = now_in_millis
+            return should
+        return True
+
+    def _should_cast(self, player: Player):
         return player.health <= self.min_health and player.mana >= self.min_mana
 
 
