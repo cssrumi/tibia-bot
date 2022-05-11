@@ -3,6 +3,9 @@ from typing import Type, List, Dict, Optional
 import PySimpleGUI as sg
 import attr
 
+from app.logger import LogWriter, LogLevel, Logger
+from app.module import Module
+from domain.game.game import Game
 from domain.task import StoppableThread
 
 
@@ -27,6 +30,10 @@ class Logs:
 @attr.s
 class GuiHandler:
 
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'GuiHandler':
+        raise NotImplementedError()
+
     def handle(self, window: sg.Window, event: str, values: dict) -> None:
         raise NotImplementedError()
 
@@ -44,9 +51,17 @@ class GuiHandlerRegistry:
 
 @attr.s
 class ComboGuiHandler(GuiHandler):
+    from app.module import Combo
+    combo = attr.ib(type=Combo)
+
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'ComboGuiHandler':
+        from app.module import Combo
+        combo = modules.get(Combo)
+        return cls(combo)
 
     def handle(self, window: sg.Window, event: str, values: dict) -> None:
-        print(event, values)
+        self.combo.caster.switch()
 
     def can_handle(self) -> str:
         return Switches.COMBO
@@ -55,14 +70,30 @@ class ComboGuiHandler(GuiHandler):
 GuiHandlerRegistry.register(ComboGuiHandler)
 
 
+@attr.s(hash=True)
+class GuiLogWriter(LogWriter):
+    window = attr.ib(type=sg.Window)
+
+    def write(self, msg: str, lvl: LogLevel):
+        if lvl.value >= LogLevel.INFO.value:
+            self.window[Logs.OUTPUT_KEY].update(msg)
+
+    def update(self, msg: str):
+        # logs = self.window[Logs.OUTPUT_KEY]
+        self.window[Logs.OUTPUT_KEY].update(msg)
+
+
 @attr.s
 class SayGuiHandler(GuiHandler):
 
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'SayGuiHandler':
+        return cls()
+
     def handle(self, window: sg.Window, event: str, values: dict) -> None:
         say = values[Say.INPUT_KEY]
-        print(say)
+        Logger.log("Say: " + say)
         window[Say.INPUT_KEY].update('')
-        window[Logs.OUTPUT_KEY].update(say)
 
     def can_handle(self) -> str:
         return Say.BUTTON
@@ -73,6 +104,7 @@ GuiHandlerRegistry.register(SayGuiHandler)
 
 @attr.s
 class Gui:
+    game = attr.ib(type=Game)
     title = attr.ib(default='RBot')
     handlers = attr.ib(type=Dict[str, GuiHandler], factory=dict)
     thread = attr.ib(default=None, type=StoppableThread, init=False)
@@ -80,6 +112,7 @@ class Gui:
 
     def show(self):
         self.window = self._create_window(self.title)
+        Logger.register(GuiLogWriter(self.window))
         self.thread = StoppableThread(target=self._run_event_loop, args=(), daemon=True)
         self.thread.start()
 
@@ -118,6 +151,7 @@ class Gui:
         self.window.close()
         if self.thread:
             self.thread.stop()
+        self.game.await_exit()
 
     def _run_event_loop(self):
         # Create an event loop
