@@ -2,7 +2,7 @@ from pynput.keyboard import Key
 
 from ctx.burner import ShadowBurner
 from domain.game.game import Game
-from domain.task import StoppableThread
+from util.task import StoppableThread
 
 
 def online_training(character: str, food_key: Key, mana_burn_key: Key, mana_burn_key2: Key = None):
@@ -25,7 +25,8 @@ def online_training(character: str, food_key: Key, mana_burn_key: Key, mana_burn
 
 
 def online_training_thread(character: str, food_key: Key, mana_burn_key: Key, mana_burn_key2: Key = None):
-    return StoppableThread(target=online_training, args=(character, food_key, mana_burn_key, mana_burn_key2), daemon=False)
+    return StoppableThread(target=online_training, args=(character, food_key, mana_burn_key, mana_burn_key2),
+                           daemon=False)
 
 
 def main():
@@ -42,7 +43,7 @@ def main():
     )
     [training.start() for training in [
         mietar,
-        zaraki,
+        # zaraki,
     ]]
 
 

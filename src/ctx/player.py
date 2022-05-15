@@ -1,10 +1,11 @@
 import attr
 import numpy as np
 
+from app.logger import Logger, LogLevel
 from ctx.window import Window
 from domain.game.status import StatusLocation, StatusColor, DEFAULT_STATUS_COLOR
-from domain.listener import Listener
-from domain.state import StateManager, State
+from util.listener import Listener
+from util.state import StateManager, State
 
 
 @attr.s(slots=True, frozen=True)
@@ -55,5 +56,5 @@ class PlayerImageListener(Listener[Window]):
         if state.is_empty():
             pass
         new_player = self.psm.create_new_player(state)
-        print(new_player)
+        Logger.log(new_player, lvl=LogLevel.DEBUG)
         self.psm.update(new_player)

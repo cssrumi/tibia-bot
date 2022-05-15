@@ -3,9 +3,10 @@ import cv2
 import numpy
 from PIL.Image import Image
 
+from app.logger import Logger
 from domain.game.grab import ApplicationGrabber, create_grabber
 from domain.game.locate import Position, locate_image, load_image, image_center
-from domain.state import StateManagerTask, State
+from util.state import StateManagerTask, State
 
 
 @attr.s
@@ -97,7 +98,7 @@ class GameWindow:
             .minus(GameScreen.WINDOW_MARGIN_DELTA_POS)
         height = abs((top_pos.y + top_height) - bottom_pos.y)
         width = int(GameScreen.WINDOW_WH_RATIO * height)
-        print("Game window height:", height, " width:", width)
+        Logger.log(f"Game window height: {height}, width: {width}")
         box_size = int(height / GameScreen.HEIGHT_BOXES)
         center_y = top_pos.y + top_height + (height / 2)
         center = Position(center_x, center_y)

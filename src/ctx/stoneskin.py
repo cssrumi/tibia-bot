@@ -11,8 +11,8 @@ from ctx.player import PlayerStateManager, Player
 from ctx.window import Window
 from domain.game.game import Game
 from domain.game.locate import Position, locate_image
-from domain.listener import Listener
-from domain.state import StateManager, State
+from util.listener import Listener
+from util.state import StateManager, State
 
 Equipped = bool
 STONE_SKIN_ON_IMAGE = '../image/stoneskinon.png'

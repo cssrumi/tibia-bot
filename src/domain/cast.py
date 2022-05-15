@@ -6,7 +6,7 @@ import attr
 from ctx.player import PlayerStateManager, Player
 from domain.game.control import Key, Keys
 from domain.game.game import Game
-from domain.task import Task, StoppableThread
+from util.task import StoppableThread, RepeatableTask
 
 
 @attr.s(slots=True)
@@ -29,31 +29,28 @@ class Cast:
 
 
 @attr.s
-class Caster(Task):
+class Caster(RepeatableTask):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     cast_list = attr.ib(type=List[Cast])
     delay = attr.ib(type=float, default=0.1, kw_only=True)
+    action_delay = attr.ib(type=float, kw_only=True, default=0.05)
 
     def __attrs_post_init__(self):
         self.cast_list = sorted(self.cast_list, key=lambda c: (c.priority, c.min_health, c.min_mana))
 
-    def _run(self):
-        self.thread = StoppableThread(target=self._cast, args=(), daemon=True)
-        self.thread.start()
+    def _skip_condition(self) -> bool:
+        player: Player = self.psm.get().value
+        return not self.game.is_connected() or not player
 
-    def _cast(self):
-        while not self.thread.stopped():
-            player: Player = self.psm.get().value
-            if not self.game.is_connected() or not player:
+    def _action(self):
+        player: Player = self.psm.get().value
+        for cast in self.cast_list:
+            if not cast.should_cast(player):
                 time.sleep(self.delay)
                 continue
-            for cast in self.cast_list:
-                if not cast.should_cast(player):
-                    time.sleep(self.delay)
-                    continue
-                controller = self.game.controller
-                controller.press(cast.key)
-                if cast.delay:
-                    time.sleep(cast.delay)
-                break
+            controller = self.game.controller
+            controller.press(cast.key)
+            if cast.delay:
+                time.sleep(cast.delay)
+            break

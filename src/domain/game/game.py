@@ -5,9 +5,10 @@ import win32gui
 from pynput.keyboard import Listener, Key
 from pywinauto import Application
 
+from app.logger import Logger
 from domain.game.control import Controller, create_controller
 from domain.game.inhibitor import WindowsInhibitor
-from domain.task import Task
+from util.task import Task
 
 
 @attr.s
@@ -39,19 +40,22 @@ class Game:
         [task.start() for task in self.tasks]
 
     def stop_all(self):
-        print("Application shutdown...")
+        Logger.log("Application shutdown...")
         [task.stop() for task in self.tasks]
         while any(task.is_started() for task in self.tasks):
             pass
         self.exit_listener.stop()
 
-    def _on_release(self, key: Key):
+    def exit(self):
+        [fun() for fun in self._on_exit]
+        self.stop_all()
+
+    def _on_exit_key(self, key: Key):
         if key == self.exit_key:
-            [fun() for fun in self._on_exit]
-            self.stop_all()
+            self.exit()
 
     def await_exit(self):
-        with Listener(on_release=self._on_release) as listener:
+        with Listener(on_release=self._on_exit_key) as listener:
             self.exit_listener = listener
             listener.join()
 
@@ -75,7 +79,7 @@ class AppConnectTask(Task):
         self._is_connected = True
         self.game._is_connected = True
         self.game.controller = create_controller(self.game)
-        print('Connected to Tibia application')
+        Logger.info('Connected to Tibia application')
         return
 
     def _run(self):

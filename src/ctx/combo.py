@@ -5,12 +5,13 @@ from typing import List
 import attr
 from pynput.keyboard import Key as PPKey, Listener
 
+from app.logger import Logger
 from ctx.player import PlayerStateManager, Player
 from domain.battle import BattleListStateManager
 from domain.cast import Cast
 from domain.game.control import Key
 from domain.game.game import Game
-from domain.task import Task, StoppableThread
+from util.task import Task, StoppableThread, RepeatableTask
 
 
 @attr.s
@@ -41,43 +42,37 @@ class AttackTypes:
 
 
 @attr.s
-class ComboCaster(Task):
+class ComboCaster(RepeatableTask):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     blsm = attr.ib(type=BattleListStateManager)
     cast_list = attr.ib(type=List[Cast])
-    delay = attr.ib(type=float, default=0.1, kw_only=True)
-    is_stopped = attr.ib(type=bool, default=True)
+    delay = attr.ib(type=float, kw_only=True, default=0.1)
+    is_stopped = attr.ib(type=bool, kw_only=True, default=True)
+    action_delay = attr.ib(type=float, kw_only=True, default=0)
 
     def __attrs_post_init__(self):
         self.game.add_task(self)
 
-    def _run(self):
-        self.thread = StoppableThread(target=self._combo, args=(), daemon=True)
-        self.thread.start()
+    def _skip_condition(self) -> bool:
+        player: Player = self.psm.get().value
+        return not self.game.is_connected() or not player
 
-    def switch(self):
-        self.is_stopped = not self.is_stopped
-
-    def _combo(self):
-        while not self.thread.stopped():
+    def _action(self):
+        for cast in cycle(self.cast_list):
+            if self.is_stopped:
+                break
             player: Player = self.psm.get().value
-            if not self.game.is_connected() or not player or self.is_stopped:
+            battle_state = self.blsm.get()
+            if battle_state.is_empty() or len(battle_state.get()) == 0:
+                break
+            if cast.should_cast(player):
+                controller = self.game.controller
+                controller.press(cast.key)
+            if cast.delay:
+                time.sleep(cast.delay)
+            if self.delay:
                 time.sleep(self.delay)
-                continue
-            for cast in cycle(self.cast_list):
-                if self.is_stopped:
-                    break
-                battle_state = self.blsm.get()
-                if battle_state.is_empty() or len(battle_state.get()) == 0:
-                    break
-                if cast.should_cast(player):
-                    controller = self.game.controller
-                    controller.press(cast.key)
-                if cast.delay:
-                    time.sleep(cast.delay)
-                if self.delay:
-                    time.sleep(self.delay)
 
 
 @attr.s
@@ -100,7 +95,7 @@ class ComboSwitch(Task):
             listener.join()
 
     def _stop_listener(self):
-        print("stopping combo listener")
+        Logger.log("stopping combo listener")
         if self._listener:
             self._listener.stop()
 
@@ -108,4 +103,4 @@ class ComboSwitch(Task):
         if key == self.key.pynput_key:
             self.combo_caster.switch()
             off_on = "off" if self.combo_caster.is_stopped else "on"
-            print("combo turn", off_on)
+            Logger.log("combo turn " + off_on)

@@ -1,40 +1,19 @@
+from typing import Type, Dict
+
 import attr
 from yaml import safe_load as yaml_load, YAMLError
 
+from app.context import Context
 from app.gui import Gui, GuiHandlerRegistry
-from ctx.player import PlayerStateManager, PlayerImageListener
-from ctx.window import WindowStateManager
-from domain.battle import BattleListStateManager, BattleList
-from domain.game.game import Game
-
-
-@attr.s
-class Context:
-    game_title = attr.ib(type=str)
-    game = attr.ib(type=Game, init=False)
-    window_state_manager = attr.ib(type=WindowStateManager, init=False)
-    player_state_manager = attr.ib(type=PlayerStateManager, init=False)
-    battle_state_manager = attr.ib(type=BattleListStateManager, init=False)
-
-    def __attrs_post_init__(self):
-        self.game = Game(self.game_title)
-        self.window_state_manager = WindowStateManager(self.game, delay=0)
-        self.player_state_manager = PlayerStateManager()
-        pil = PlayerImageListener(self.player_state_manager)
-        self.window_state_manager.add_update_listener(pil.update_listener)
-        battle = BattleList(self.game, self.window_state_manager)
-        self.battle_state_manager = BattleListStateManager(battle)
-
-    @staticmethod
-    def create(config: dict) -> 'Context':
-        game_title = config['title']
-        return Context(game_title)
+from app.logger import Logger
 
 
 @attr.s
 class Application:
+    from app.module import Module
     context = attr.ib(type=Context, init=False)
     gui = attr.ib(type=Gui, init=False)
+    modules = attr.ib(type=Dict[Type[Module], Module], factory=dict)
 
     def _load_config(self, config_path: str) -> dict:
         with open(config_path, "r") as stream:
@@ -47,10 +26,11 @@ class Application:
         config = self._load_config(config_path)
         self.context = Context.create(config)
         from app.module import ModuleRegistry
-        [print(module.load(config, self.context).name(), "loaded!") for module in ModuleRegistry.modules]
-        print("Application initialized!")
-        self.gui = Gui()
-        [self.gui.register_handler(handler()) for handler in GuiHandlerRegistry.handlers]
+        self.modules = {module: module.load(config, self.context) for module in ModuleRegistry.modules}
+        [Logger.log(module.name() + " loaded!") for module in self.modules.keys()]
+        Logger.log("Application initialized!")
+        self.gui = Gui(self.context.game)
+        [self.gui.register_handler(handler.create(self.modules)) for handler in GuiHandlerRegistry.handlers]
 
     def run(self):
         self.gui.show()

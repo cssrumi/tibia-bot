@@ -6,6 +6,8 @@ import cv2
 import numpy
 import numpy as np
 
+from app.logger import Logger, LogLevel
+
 lock = Lock()
 
 
@@ -35,9 +37,10 @@ class Position:
         return Position.__empty
 
 
-def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True, method: int = cv2.TM_CCOEFF_NORMED) -> Position:
+def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True,
+                 method: int = cv2.TM_CCOEFF_NORMED) -> Position:
     if origin is None:
-        print("Origin was empty")
+        Logger.log("Origin was empty", lvl=LogLevel.DEBUG)
         return Position.empty()
     template = load_image(image)
     res = cv2.matchTemplate(origin, template, method)
@@ -52,9 +55,9 @@ def locate_image(origin: numpy.ndarray, image, precision=0.8, start=True, method
 
 
 def locate_image_gen(origin: numpy.ndarray, image, precision=0.8, start=True, method: int = cv2.TM_CCOEFF_NORMED) -> \
-Generator[Position, None, None]:
+        Generator[Position, None, None]:
     if origin is None:
-        print("Origin was empty")
+        Logger.log("Origin was empty", lvl=LogLevel.DEBUG)
         yield Position.empty()
 
     template = load_image(image)
@@ -80,5 +83,5 @@ def load_image(image: Union[str, numpy.ndarray], mask: int = 0) -> numpy.ndarray
 def image_center(image: Union[str, numpy.ndarray]) -> Position:
     template = load_image(image)
     height, width = template.shape
-    print(width, height)
+    Logger.log(f"width: {width}, height: {height}")
     return Position(int(width / 2), int(height / 2))

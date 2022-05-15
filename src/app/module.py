@@ -2,7 +2,8 @@ from typing import List, Type, Optional
 
 import attr
 
-from app.application import Context
+from app.context import Context
+from app.logger import Logger
 from ctx.autotarget import AutoTargetTask
 from ctx.combo import ComboCaster, ComboSwitch, AttackTypes
 from ctx.exchange import ExchangeTask
@@ -14,10 +15,11 @@ from ctx.refill import RefillTask
 from domain.cast import Cast
 from domain.container import ContainerTypes
 from domain.game.control import Keys, MouseButtons
+from util.switch import Switchable
 
 
 @attr.s
-class Module:
+class Module(Switchable):
     enabled = attr.ib(type=bool)
 
     @staticmethod
@@ -32,13 +34,24 @@ class Module:
     def load(cls, config: dict, context: Context) -> 'Module':
         module_config = config[cls.name()]
         if not module_config or not module_config['enabled']:
-            print(cls.name(), "module disabled")
+            Logger.log(cls.name() + " module disabled")
             return cls.load_disabled()
-        print(cls.name(), "module enabled")
+        Logger.log(cls.name() + " module enabled")
         return cls.load_enabled(module_config, context)
 
     @staticmethod
     def load_enabled(module_config: dict, context: Context):
+        raise NotImplementedError()
+
+    def switch(self):
+        if self.enabled:
+            super().switch()
+            self._switch_enabled()
+            Logger.log(f"{self.name()} module switched!")
+        else:
+            Logger.log(f"Unable to switch disabled module: {self.name()}")
+
+    def _switch_enabled(self):
         raise NotImplementedError()
 
 
@@ -70,9 +83,13 @@ class AutoHeal(Module):
             spells=spells,
             potions=potions
         )
-        print(potions)
-        print(spells)
+        Logger.log(potions)
+        Logger.log(spells)
         return AutoHeal(True, task=task)
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
 
 
 ModuleRegistry.register(AutoHeal)
@@ -81,7 +98,7 @@ ModuleRegistry.register(AutoHeal)
 @attr.s
 class Combo(Module):
     caster = attr.ib(type=Optional[ComboCaster], default=None, kw_only=True)
-    switch = attr.ib(type=Optional[ComboSwitch], default=None, kw_only=True)
+    _switch = attr.ib(type=Optional[ComboSwitch], default=None, kw_only=True)
 
     @staticmethod
     def name() -> str:
@@ -111,6 +128,10 @@ class Combo(Module):
         attack_config.pop('type')
         return attack_type.deserialize(attack_config)
 
+    def _switch_enabled(self):
+        if self.caster:
+            self.caster.switch()
+
 
 ModuleRegistry.register(Combo)
 
@@ -128,6 +149,10 @@ class FoodEater(Module):
         key = Keys.from_str(module_config['key'])
         task = FoodEaterTask(context.game, key=key)
         return FoodEater(True, task=task)
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
 
 
 ModuleRegistry.register(FoodEater)
@@ -150,6 +175,10 @@ class Exchange(Module):
         )
         return Exchange(True, task=task)
 
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
+
 
 ModuleRegistry.register(Exchange)
 
@@ -169,6 +198,10 @@ class AutoTarget(Module):
             context.battle_state_manager
         )
         return AutoTarget(True, task=task)
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
 
 
 ModuleRegistry.register(AutoTarget)
@@ -198,13 +231,17 @@ class AutoLoot(Module):
     @staticmethod
     def optional_kwargs(module_config: dict) -> dict:
         kwargs = {}
-        delay = module_config.get('delay')
+        delay = module_config.get('delay') or module_config.get('action_delay')
         if delay:
-            kwargs['delay'] = delay
+            kwargs['action_delay'] = delay
         loot_cooldown = module_config.get('loot_cooldown')
         if loot_cooldown:
             kwargs['loot_cooldown'] = loot_cooldown
         return kwargs
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
 
 
 ModuleRegistry.register(AutoLoot)
@@ -229,6 +266,10 @@ class MagicTraining(Module):
         key = Keys.from_str(cfg['key'])
         min_mana = cfg['min_mana']
         return MagicTrainingTask(ctx.game, ctx.player_state_manager, key=key, min_mana=min_mana)
+
+    def _switch_enabled(self):
+        if self.tasks:
+            [task.switch() for task in self.tasks]
 
 
 ModuleRegistry.register(MagicTraining)
@@ -267,10 +308,14 @@ class Refiller(Module):
     @staticmethod
     def optional_kwargs(module_config: dict) -> dict:
         kwargs = {}
-        delay = module_config.get('delay')
+        delay = module_config.get('delay') or module_config.get('action_delay')
         if delay:
-            kwargs['delay'] = delay
+            kwargs['action_delay'] = delay
         return kwargs
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
 
 
 ModuleRegistry.register(Refiller)
