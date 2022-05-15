@@ -3,14 +3,13 @@ from typing import List, Optional
 import attr
 import cv2
 import numpy
-from PIL import Image
 
+from app.logger import Logger, LogLevel
 from ctx.window import WindowStateManager
 from domain.game.game import Game
 from domain.game.locate import Position, locate_image, load_image, locate_image_gen
 from domain.monster import DetectedMonster, Monster
-from domain.state import StateManagerTask
-
+from util.state import StateManagerTask
 
 MARGIN = Position(8, 31)
 
@@ -56,7 +55,7 @@ class BattleList:
         if not self._positions_found():
             self._find_position()
         if not self._positions_found():
-            print("Battle position not found")
+            Logger.warn("Battle position not found")
             return []
         return self._find_filtered(filters) if filters else self._find_all()
 
@@ -66,7 +65,7 @@ class BattleList:
     def _find_all(self) -> List[DetectedMonster]:
         battle_list = self._battle_list()
         if battle_list is None or battle_list.size == 0:
-            print("battle list is empty")
+            Logger.debug("battle list is empty")
             return []
         monsters = [
             DetectedMonster(monster_pos.plus(self.fixed_start_pos), Monster.UNKNOWN, False)
@@ -84,7 +83,7 @@ class BattleList:
 
     def _battle_list(self) -> Optional[numpy.ndarray]:
         if not self._positions_found():
-            print('Battle list not found')
+            Logger.error('Battle list not found')
             return
         state = self.wsmt.get()
         origin = state.get().ndarray_bgr()
@@ -106,10 +105,10 @@ class BattleListStateManager(StateManagerTask[List[DetectedMonster]]):
     def __attrs_post_init__(self):
         self.game = self.battle.game
         self.game.add_task(self)
-        print(self.__class__.__name__, 'added')
+        Logger.log(self.__class__.__name__ + 'added', lvl=LogLevel.DEBUG)
 
     def new_value(self) -> List[DetectedMonster]:
-        print("detecting monsters...")
+        Logger.debug("detecting monsters...")
         nv = self.battle.detect_monsters()
-        print("found:", len(nv), nv)
+        Logger.debug(f"found {len(nv)}: {nv}")
         return nv

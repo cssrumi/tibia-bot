@@ -5,6 +5,7 @@ from yaml import safe_load as yaml_load, YAMLError
 
 from app.context import Context
 from app.gui import Gui, GuiHandlerRegistry
+from app.logger import Logger
 
 
 @attr.s
@@ -26,8 +27,8 @@ class Application:
         self.context = Context.create(config)
         from app.module import ModuleRegistry
         self.modules = {module: module.load(config, self.context) for module in ModuleRegistry.modules}
-        [print(module.name(), "loaded!") for module in self.modules.keys()]
-        print("Application initialized!")
+        [Logger.log(module.name() + " loaded!") for module in self.modules.keys()]
+        Logger.log("Application initialized!")
         self.gui = Gui(self.context.game)
         [self.gui.register_handler(handler.create(self.modules)) for handler in GuiHandlerRegistry.handlers]
 

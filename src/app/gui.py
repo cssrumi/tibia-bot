@@ -6,14 +6,15 @@ import attr
 from app.logger import LogWriter, LogLevel, Logger
 from app.module import Module
 from domain.game.game import Game
-from domain.task import StoppableThread
+from util.task import StoppableThread
 
 
 class Switches:
     TITLE = 'Switches'
-    TARGER = 'Target'
+    TARGET = 'Target'
     LOOT = 'Loot'
     COMBO = 'Combo'
+    MAGIC = 'Magic'
 
 
 class Say:
@@ -49,6 +50,7 @@ class GuiHandlerRegistry:
         GuiHandlerRegistry.handlers.append(cls)
 
 
+@GuiHandlerRegistry.register
 @attr.s
 class ComboGuiHandler(GuiHandler):
     from app.module import Combo
@@ -61,13 +63,66 @@ class ComboGuiHandler(GuiHandler):
         return cls(combo)
 
     def handle(self, window: sg.Window, event: str, values: dict) -> None:
-        self.combo.caster.switch()
+        self.combo.switch()
 
     def can_handle(self) -> str:
         return Switches.COMBO
 
 
-GuiHandlerRegistry.register(ComboGuiHandler)
+@GuiHandlerRegistry.register
+@attr.s
+class AutoTargetGuiHandler(GuiHandler):
+    from app.module import AutoTarget
+    autotarget = attr.ib(type=AutoTarget)
+
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'AutoTargetGuiHandler':
+        from app.module import AutoTarget
+        autotarget = modules.get(AutoTarget)
+        return cls(autotarget)
+
+    def handle(self, window: sg.Window, event: str, values: dict) -> None:
+        self.autotarget.switch()
+
+    def can_handle(self) -> str:
+        return Switches.TARGET
+
+
+@GuiHandlerRegistry.register
+@attr.s
+class AutoLootGuiHandler(GuiHandler):
+    from app.module import AutoLoot
+    autoloot = attr.ib(type=AutoLoot)
+
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'AutoLootGuiHandler':
+        from app.module import AutoLoot
+        autoloot = modules.get(AutoLoot)
+        return cls(autoloot)
+
+    def handle(self, window: sg.Window, event: str, values: dict) -> None:
+        self.autoloot.switch()
+
+    def can_handle(self) -> str:
+        return Switches.LOOT
+
+@GuiHandlerRegistry.register
+@attr.s
+class MagicTrainingGuiHandler(GuiHandler):
+    from app.module import MagicTraining
+    magictraining = attr.ib(type=MagicTraining)
+
+    @classmethod
+    def create(cls, modules: Dict[Type[Module], Module]) -> 'MagicTrainingGuiHandler':
+        from app.module import MagicTraining
+        magictraining = modules.get(MagicTraining)
+        return cls(magictraining)
+
+    def handle(self, window: sg.Window, event: str, values: dict) -> None:
+        self.magictraining.switch()
+
+    def can_handle(self) -> str:
+        return Switches.MAGIC
 
 
 @attr.s(hash=True)
@@ -75,14 +130,14 @@ class GuiLogWriter(LogWriter):
     window = attr.ib(type=sg.Window)
 
     def write(self, msg: str, lvl: LogLevel):
-        if lvl.value >= LogLevel.INFO.value:
-            self.window[Logs.OUTPUT_KEY].update(msg)
+        if lvl.value >= LogLevel.INFO.value and not self.window.is_closed():
+            try:
+                self.window[Logs.OUTPUT_KEY].update(lvl.name + ": " + msg)
+            except RuntimeError:
+                pass
 
-    def update(self, msg: str):
-        # logs = self.window[Logs.OUTPUT_KEY]
-        self.window[Logs.OUTPUT_KEY].update(msg)
 
-
+@GuiHandlerRegistry.register
 @attr.s
 class SayGuiHandler(GuiHandler):
 
@@ -97,9 +152,6 @@ class SayGuiHandler(GuiHandler):
 
     def can_handle(self) -> str:
         return Say.BUTTON
-
-
-GuiHandlerRegistry.register(SayGuiHandler)
 
 
 @attr.s
@@ -119,9 +171,10 @@ class Gui:
     def _create_window(self, title: str) -> sg.Window:
         switches_column = [
             [sg.Text(Switches.TITLE)],
-            [sg.Button(Switches.TARGER, size=(6, 1))],
-            [sg.Button(Switches.LOOT, size=(6, 1))],
-            [sg.Button(Switches.COMBO, size=(6, 1))],
+            [sg.Button(Switches.TARGET, size=(6, 1), pad=(0, 0))],
+            [sg.Button(Switches.LOOT, size=(6, 1), pad=(0, 0))],
+            [sg.Button(Switches.COMBO, size=(6, 1), pad=(0, 0))],
+            [sg.Button(Switches.MAGIC, size=(6, 1), pad=(0, 0), )],
         ]
 
         say_column = [
@@ -136,7 +189,7 @@ class Gui:
         # ----- Full layout -----
         layout = [
             [
-                sg.Column(switches_column),
+                sg.Column(switches_column, element_justification='center'),
                 sg.VSeperator(),
                 sg.Column(say_column),
             ]
@@ -148,10 +201,10 @@ class Gui:
         self.handlers[handler.can_handle()] = handler
 
     def close(self):
-        self.window.close()
         if self.thread:
             self.thread.stop()
-        self.game.await_exit()
+        self.game.exit()
+        self.window.close()
 
     def _run_event_loop(self):
         # Create an event loop

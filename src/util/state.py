@@ -3,7 +3,8 @@ from typing import TypeVar, Generic, Callable, List
 
 import attr
 
-from domain.task import Task, StoppableThread
+from app.logger import Logger
+from util.task import Task, StoppableThread
 
 T = TypeVar("T")
 
@@ -55,7 +56,7 @@ class StateManagerTask(Task, StateManager[T], Generic[T]):
                 if self.delay:
                     time.sleep(self.delay)
                 end_ = int((time.time_ns()) - start) / 1_000_000
-                print(f"Total state execution time of {self.__class__.__name__}: {end_ if end_ > 0 else 0} ms")
+                Logger.debug(f"Total state execution time of {self.__class__.__name__}: {end_ if end_ > 0 else 0} ms")
             else:
                 time.sleep(0.5)
 

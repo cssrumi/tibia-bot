@@ -2,7 +2,7 @@ from typing import TypeVar, Generic
 
 import attr
 
-from domain.state import State
+from util.state import State
 
 T = TypeVar("T")
 

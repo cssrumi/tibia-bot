@@ -5,10 +5,11 @@ from typing import List, TypeVar, Generic, Type
 
 import attr
 
+from app.logger import LogLevel, Logger
 from domain.battle import BattleListStateManager
 from domain.game.game import Game
 from domain.game.locate import Position
-from domain.task import Task
+from util.task import Task
 
 T = TypeVar("T")
 
@@ -93,4 +94,4 @@ class CaveTask(Task):
         self.game.add_task(self)
 
     def _run(self):
-        print(self.config)
+        Logger.log(self.config, lvl=LogLevel.DEBUG)

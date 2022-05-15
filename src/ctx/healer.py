@@ -6,11 +6,13 @@ import attr
 from ctx.player import PlayerStateManager, Player
 from domain.cast import Cast, Caster
 from domain.game.game import Game
-from domain.task import Task
+from util.switch import Switchable
+from util.task import Task
 
 
 @attr.s
 class Spell(Cast):
+    delay = attr.ib(type=float, default=1, kw_only=True)
 
     def should_cast(self, player: Player):
         return player.health <= self.min_health and player.mana >= self.min_mana
@@ -41,13 +43,14 @@ class TimedSpell(Cast):
 class Potion(Cast):
     min_mana = attr.ib(type=int, kw_only=True, default=100)
     min_health = attr.ib(type=int, kw_only=True, default=100)
+    delay = attr.ib(type=float, default=1, kw_only=True)
 
     def should_cast(self, player: Player):
         return player.health <= self.min_health and player.mana <= self.min_mana
 
 
 @attr.s
-class HealerTask(Task):
+class HealerTask(Task, Switchable):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     spells = attr.ib(type=List[Spell])
@@ -59,6 +62,10 @@ class HealerTask(Task):
         self._spell_caster = Caster(self.game, self.psm, self.spells)
         self._potion_caster = Caster(self.game, self.psm, self.potions)
         self.game.add_task(self)
+
+    def switch(self):
+        self._spell_caster.switch()
+        self._potion_caster.switch()
 
     def _run(self):
         self._spell_caster.start()

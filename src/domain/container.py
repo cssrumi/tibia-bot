@@ -1,10 +1,10 @@
-from typing import Generator, Optional, Type
+from typing import Generator, Optional
 
 import numpy
 
 from ctx.window import Window
 from domain.game.locate import Position, locate_image, locate_image_gen, load_image
-from domain.state import State
+from util.state import State
 
 containers_path = '../image/containers/'
 
