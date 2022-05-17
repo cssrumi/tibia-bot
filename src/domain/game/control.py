@@ -126,8 +126,7 @@ class PywinautoController(Controller):
             if not msg.isalnum():
                 Logger.warn(f"Non alphanumeric msg: {msg}")
                 msg = re.sub(r'[^A-Za-z0-9 ]+', '', msg)
-            msg = msg[0] + msg
-            self.window.send_keystrokes(msg)
+            self.window.send_chars(msg, with_tabs=False, with_newlines=False)
         except RuntimeError as e:
             Logger.error(f"Unable to write: {msg}. Reason: {e}")
 

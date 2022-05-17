@@ -43,7 +43,7 @@ def main():
     )
     [training.start() for training in [
         mietar,
-        # zaraki,
+        zaraki,
     ]]
 
 
