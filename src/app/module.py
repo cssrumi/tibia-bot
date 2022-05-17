@@ -16,6 +16,7 @@ from domain.cast import Cast
 from domain.container import ContainerTypes
 from domain.game.control import Keys, MouseButtons
 from util.switch import Switchable
+from ctx.chat import Chat as ChatHandler
 
 
 @attr.s
@@ -319,3 +320,27 @@ class Refiller(Module):
 
 
 ModuleRegistry.register(Refiller)
+
+
+@attr.s
+class Chat(Module):
+    chat_handler = attr.ib(type=ChatHandler)
+
+    @staticmethod
+    def name() -> str:
+        return 'chat'
+
+    @classmethod
+    def load(cls, config: dict, context: Context) -> 'Chat':
+        ch = ChatHandler(context.game, context.player_state_manager)
+        return cls(True, ch)
+
+    @staticmethod
+    def load_enabled(module_config: dict, context: Context):
+        pass
+
+    def _switch_enabled(self):
+        pass
+
+
+ModuleRegistry.register(Chat)

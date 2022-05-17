@@ -1,3 +1,4 @@
+import re
 import time
 from threading import Lock
 
@@ -9,6 +10,7 @@ from pynput.keyboard import Controller as PPController
 from pynput.keyboard import Key as PPKey
 from pywinauto import WindowSpecification
 
+from app.logger import Logger
 from domain.game.locate import Position
 
 
@@ -37,6 +39,7 @@ class Keys:
     N4 = Key('{4}', '4')
     CAPS_LOCK = Key('{CAPSLOCK}', PPKey.caps_lock)
     SPACE = Key('{SPACE}', PPKey.space)
+    ENTER = Key('{ENTER}', PPKey.enter)
 
     @staticmethod
     def from_str(key: str) -> Key:
@@ -106,12 +109,27 @@ class Controller:
     def press(self, key: Key):
         raise NotImplementedError()
 
+    def write(self, msg: str):
+        raise NotImplementedError()
+
 
 @attr.s
 class PywinautoController(Controller):
 
     def press(self, key: Key):
         self.window.send_keystrokes(key.pywinauto_key)
+
+    def write(self, msg: str):
+        if not msg:
+            return
+        try:
+            if not msg.isalnum():
+                Logger.warn(f"Non alphanumeric msg: {msg}")
+                msg = re.sub(r'[^A-Za-z0-9 ]+', '', msg)
+            msg = msg[0] + msg
+            self.window.send_keystrokes(msg)
+        except RuntimeError as e:
+            Logger.error(f"Unable to write: {msg}. Reason: {e}")
 
 
 @attr.s
@@ -121,6 +139,10 @@ class PynputController(Controller):
     def press(self, key: Key):
         self.keyboard.press(key.pynput_key)
         self.keyboard.release(key.pynput_key)
+
+    def write(self, msg: str):
+        # TODO: impl
+        Logger.error("Unsupported operation type")
 
 
 @attr.s
@@ -135,6 +157,10 @@ class ControllerFacade(Controller):
     def press(self, key: Key):
         controller = self.pynput if self.game.is_active() else self.pywinauto
         controller.press(key)
+
+    def write(self, msg: str):
+        controller = self.pynput if self.game.is_active() else self.pywinauto
+        controller.window(msg)
 
 
 def create_controller(game: 'Game') -> Controller:

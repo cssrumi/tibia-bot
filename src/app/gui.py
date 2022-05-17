@@ -140,14 +140,18 @@ class GuiLogWriter(LogWriter):
 @GuiHandlerRegistry.register
 @attr.s
 class SayGuiHandler(GuiHandler):
+    from app.module import Chat
+    chat = attr.ib(type=Chat)
 
     @classmethod
     def create(cls, modules: Dict[Type[Module], Module]) -> 'SayGuiHandler':
-        return cls()
+        from app.module import Chat
+        chat = modules.get(Chat)
+        return cls(chat)
 
     def handle(self, window: sg.Window, event: str, values: dict) -> None:
-        say = values[Say.INPUT_KEY]
-        Logger.log("Say: " + say)
+        msg = values[Say.INPUT_KEY]
+        self.chat.chat_handler.say(msg)
         window[Say.INPUT_KEY].update('')
 
     def can_handle(self) -> str:
