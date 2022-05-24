@@ -47,6 +47,7 @@ autotarget:
 autoloot:
   type: ON_KEY
   key: SPACE
+  mouse_button: RIGHT
   enabled: true
 
 magictraining:
