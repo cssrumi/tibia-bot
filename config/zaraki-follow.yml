@@ -48,6 +48,7 @@ autoloot:
   type: ON_KEY
   key: SPACE
   mouse_button: RIGHT
+  loot_cooldown: 0.1
   enabled: true
 
 magictraining:

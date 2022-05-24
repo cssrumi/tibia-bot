@@ -257,6 +257,9 @@ class AutoLoot(Module):
     @staticmethod
     def optional_task_kwargs(module_config: dict) -> dict:
         kwargs = {}
+        loot_cooldown = module_config.get('loot_cooldown')
+        if loot_cooldown:
+            kwargs['loot_cooldown'] = loot_cooldown
         delay = module_config.get('delay') or module_config.get('action_delay')
         if delay:
             kwargs['action_delay'] = delay
