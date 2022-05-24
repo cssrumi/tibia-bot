@@ -35,6 +35,11 @@ def main():
         food_key=Key.f9,
         mana_burn_key=Key.f3
     )
+    aizen = online_training_thread(
+        'Aizen Sousuke',
+        food_key=Key.f9,
+        mana_burn_key=Key.f2
+    )
     zaraki = online_training_thread(
         'Zaraki Kenpachi',
         food_key=Key.f9,
@@ -44,6 +49,7 @@ def main():
     [training.start() for training in [
         mietar,
         zaraki,
+        aizen,
     ]]
 
 

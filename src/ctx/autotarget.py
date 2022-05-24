@@ -25,16 +25,16 @@ class AutoTargetTask(RepeatableTask):
     def _action(self):
         state = self.blsm.get()
         if state.is_empty():
-            Logger.log("Battle state was empty")
+            Logger.debug("Battle state was empty")
             return
         detected_monsters = state.get()
         is_targeted = any(map(lambda dm: dm.is_targeted, detected_monsters))
-        Logger.log(f"is targeted: {is_targeted}, detected monsters: {len(detected_monsters)}")
+        Logger.debug(f"is targeted: {is_targeted}, detected monsters: {len(detected_monsters)}")
         if not is_targeted and detected_monsters:
             monster = min(detected_monsters, key=lambda dm: dm.position.y)
             controller = self.game.controller
             controller.click(MouseButtons.LEFT, monster.position)
             controller.move(monster.position.plus(MOVE_MOUSE_POS))
-            Logger.log(f"monster in pos: {monster.position} targeted")
+            Logger.info(f"monster in pos: {monster.position} targeted")
         else:
-            Logger.log("monster already targeted or nothing detected")
+            Logger.info("monster already targeted or nothing detected")
