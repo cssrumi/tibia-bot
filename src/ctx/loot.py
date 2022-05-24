@@ -74,7 +74,7 @@ class LootListener(Task, Switchable):
             self._listener.stop()
 
     def _on_release(self, key: PPKey):
-        if self.is_stopped or key != self.key.pynput_key:
+        if self.is_stopped or key != self.key.pynput_key or not self.invoker.game.is_active():
             return
         self.invoker.invoke()
 
