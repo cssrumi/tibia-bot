@@ -45,7 +45,9 @@ autotarget:
   enabled: false
 
 autoloot:
-  enabled: false
+  type: ON_KEY
+  key: SPACE
+  enabled: true
 
 magictraining:
   enabled: true

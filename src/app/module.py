@@ -9,7 +9,7 @@ from ctx.combo import ComboCaster, ComboSwitch, AttackTypes
 from ctx.exchange import ExchangeTask
 from ctx.foodeater import FoodEaterTask
 from ctx.healer import Spell, Potion, HealerTask
-from ctx.loot import AutoLootTask
+from ctx.loot import AutoLootTask, LootAction, LootListener, LootType
 from ctx.magictraining import MagicTrainingTask
 from ctx.refill import RefillTask
 from domain.cast import Cast
@@ -211,6 +211,7 @@ ModuleRegistry.register(AutoTarget)
 @attr.s
 class AutoLoot(Module):
     task = attr.ib(type=Optional[AutoLootTask], default=None, kw_only=True)
+    listener = attr.ib(type=Optional[LootListener], default=None, kw_only=True)
 
     @staticmethod
     def name() -> str:
@@ -218,31 +219,54 @@ class AutoLoot(Module):
 
     @staticmethod
     def load_enabled(module_config: dict, context: Context) -> 'AutoLoot':
-        kwargs = AutoLoot.optional_kwargs(module_config)
+        action_kwargs = AutoLoot.optional_action_kwargs(module_config)
         mouse_button = MouseButtons.from_str(module_config['mouse_button'])
-        task = AutoLootTask(
+        action = LootAction(
             context.game,
-            context.player_state_manager,
             context.window_state_manager,
             mouse_button,
-            **kwargs
+            **action_kwargs
         )
-        return AutoLoot(True, task=task)
+        task = None
+        listener = None
+        loot_type = LootType.from_str(module_config.get('type', LootType.REPEATABLE.name))
+        if loot_type == LootType.REPEATABLE:
+            task_kwargs = AutoLoot.optional_task_kwargs(module_config)
+            task = AutoLootTask(
+                context.game,
+                context.player_state_manager,
+                context.window_state_manager,
+                action,
+                **task_kwargs
+            )
+        if loot_type == LootType.ON_KEY:
+            key = module_config['key']
+            loot_key = Keys.from_str(key)
+            listener = LootListener(action, loot_key, is_stopped=False)
+
+        return AutoLoot(True, task=task, listener=listener)
 
     @staticmethod
-    def optional_kwargs(module_config: dict) -> dict:
+    def optional_action_kwargs(module_config: dict) -> dict:
         kwargs = {}
-        delay = module_config.get('delay') or module_config.get('action_delay')
-        if delay:
-            kwargs['action_delay'] = delay
         loot_cooldown = module_config.get('loot_cooldown')
         if loot_cooldown:
             kwargs['loot_cooldown'] = loot_cooldown
         return kwargs
 
+    @staticmethod
+    def optional_task_kwargs(module_config: dict) -> dict:
+        kwargs = {}
+        delay = module_config.get('delay') or module_config.get('action_delay')
+        if delay:
+            kwargs['action_delay'] = delay
+        return kwargs
+
     def _switch_enabled(self):
         if self.task:
             self.task.switch()
+        if self.listener:
+            self.listener.switch()
 
 
 ModuleRegistry.register(AutoLoot)

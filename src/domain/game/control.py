@@ -37,12 +37,20 @@ class Keys:
     N2 = Key('{2}', '2')
     N3 = Key('{3}', '3')
     N4 = Key('{4}', '4')
+    N5 = Key('{5}', '5')
+    N6 = Key('{6}', '6')
+    N7 = Key('{7}', '7')
+    N8 = Key('{8}', '8')
+    N9 = Key('{9}', '9')
+    N0 = Key('{0}', '0')
     CAPS_LOCK = Key('{CAPSLOCK}', PPKey.caps_lock)
     SPACE = Key('{SPACE}', PPKey.space)
     ENTER = Key('{ENTER}', PPKey.enter)
 
     @staticmethod
     def from_str(key: str) -> Key:
+        if key and key.isnumeric():
+            key = 'N' + key
         return Keys.__dict__[key.upper()]
 
 
