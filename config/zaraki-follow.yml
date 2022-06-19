@@ -10,7 +10,7 @@ autoheal:
     - key: F4
       min_mana: 30
     - key: F5
-      min_health: 80
+      min_health: 84
 
 combo:
   enabled: true
@@ -31,8 +31,19 @@ combo:
       min_mana: 10
       delay: 2
       type: SPELL
+#      min_monsters_count: 2
+#    - key: N1
+#      min_mana: 10
+#      delay: 2
+#      type: SPELL
+#      max_monsters_count: 1
   switch:
     key: CAPS_LOCK
+  randomization:
+    enabled: true
+    hp_gate: 60
+    max: 0.2 # sec
+    min: 0 # sec
 
 foodeater:
   enabled: true
@@ -48,14 +59,20 @@ autoloot:
   type: ON_KEY
   key: SPACE
   mouse_button: RIGHT
-  loot_cooldown: 0.1
+  loot_cooldown: 0
   enabled: true
+
+autocast:
+  enabled: true
+  key: F2
+  delay: 600
 
 magictraining:
   enabled: true
   burners:
     - key: F1
       min_mana: 90
+      delay: 1.05
 
 refiller:
   enabled: false

@@ -4,6 +4,7 @@ import attr
 
 from app.context import Context
 from app.logger import Logger
+from ctx.autocast import AutoCastTask
 from ctx.autotarget import AutoTargetTask
 from ctx.combo import ComboCaster, ComboSwitch, AttackTypes
 from ctx.exchange import ExchangeTask
@@ -11,6 +12,7 @@ from ctx.foodeater import FoodEaterTask
 from ctx.healer import Spell, Potion, HealerTask
 from ctx.loot import AutoLootTask, LootAction, LootListener, LootType
 from ctx.magictraining import MagicTrainingTask
+from ctx.randomization import Randomization, PlayerBasedRandomization
 from ctx.refill import RefillTask
 from domain.cast import Cast
 from domain.container import ContainerTypes
@@ -109,11 +111,13 @@ class Combo(Module):
     def load_enabled(module_config: dict, context: Context) -> 'Combo':
         attacks_config = module_config['attacks']
         attacks = [Combo._deserialize_attack(attack_cfg) for attack_cfg in attacks_config] if attacks_config else []
+        randomization = Combo._deserialize_randomization(module_config['randomization'], context)
         caster = ComboCaster(
             context.game,
             context.player_state_manager,
             context.battle_state_manager,
-            attacks
+            attacks,
+            randomization=randomization
         )
         switch_key = Keys.from_str(module_config['switch']['key'])
         switch = ComboSwitch(
@@ -128,6 +132,12 @@ class Combo(Module):
         attack_config = attack_config.copy()
         attack_config.pop('type')
         return attack_type.deserialize(attack_config)
+
+    @staticmethod
+    def _deserialize_randomization(randomization_config: dict, context: Context) -> Randomization:
+        if not randomization_config or not randomization_config.get('enabled', False):
+            return Randomization.disabled()
+        return PlayerBasedRandomization(**randomization_config, psm=context.player_state_manager)
 
     def _switch_enabled(self):
         if self.caster:
@@ -157,6 +167,37 @@ class FoodEater(Module):
 
 
 ModuleRegistry.register(FoodEater)
+
+
+@attr.s
+class AutoCast(Module):
+    task = attr.ib(type=Optional[AutoCastTask], default=None, kw_only=True)
+
+    @staticmethod
+    def name() -> str:
+        return 'autocast'
+
+    @staticmethod
+    def load_enabled(module_config: dict, context: Context) -> 'AutoCast':
+        key = Keys.from_str(module_config['key'])
+        kwargs = AutoCast.optional_task_kwargs(module_config)
+        task = AutoCastTask(context.game, key=key, **kwargs)
+        return AutoCast(True, task=task)
+
+    @staticmethod
+    def optional_task_kwargs(module_config: dict) -> dict:
+        kwargs = {}
+        delay = module_config.get('delay') or module_config.get('action_delay')
+        if delay:
+            kwargs['action_delay'] = delay
+        return kwargs
+
+    def _switch_enabled(self):
+        if self.task:
+            self.task.switch()
+
+
+ModuleRegistry.register(AutoCast)
 
 
 @attr.s
@@ -293,7 +334,9 @@ class MagicTraining(Module):
     def _load_burner_task(cfg: dict, ctx: Context) -> MagicTrainingTask:
         key = Keys.from_str(cfg['key'])
         min_mana = cfg['min_mana']
-        return MagicTrainingTask(ctx.game, ctx.player_state_manager, key=key, min_mana=min_mana)
+        delay = cfg.get('delay') or cfg.get('action_delay')
+        delay_kwarg = {} if delay is None else {'action_delay': delay}
+        return MagicTrainingTask(ctx.game, ctx.player_state_manager, key=key, min_mana=min_mana, **delay_kwarg)
 
     def _switch_enabled(self):
         if self.tasks:

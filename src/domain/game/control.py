@@ -1,6 +1,7 @@
 import re
 import time
 from threading import Lock
+from typing import Union
 
 import attr
 import win32api
@@ -48,9 +49,9 @@ class Keys:
     ENTER = Key('{ENTER}', PPKey.enter)
 
     @staticmethod
-    def from_str(key: str) -> Key:
-        if key and key.isnumeric():
-            key = 'N' + key
+    def from_str(key: Union[str, int]) -> Key:
+        if key and isinstance(key, int):
+            key = 'N' + str(key)
         return Keys.__dict__[key.upper()]
 
 

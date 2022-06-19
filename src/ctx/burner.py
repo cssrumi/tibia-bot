@@ -54,7 +54,8 @@ class ShadowBurner(Task):
 
     def _burn(self):
         while not self.thread.stopped():
-            self._press_and_release(self.food_key)
+            if self.food_key:
+                self._press_and_release(self.food_key)
             self._press_and_release(self.mana_burn_key)
             time.sleep(self.delay)
 
@@ -62,3 +63,35 @@ class ShadowBurner(Task):
         k = FUNCTION_KEYS.get(key.name) if isinstance(key, pynput.keyboard.Key) else ord(key)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, k, 0)
         # win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, k, 0)
+
+
+@attr.s
+class Market(Task):
+    game = attr.ib(type=Game)
+    trade_key = attr.ib(type=pynput.keyboard.Key, kw_only=True)
+    delay = attr.ib(kw_only=True, type=float, default=21)
+    hwnd = attr.ib(init=False, kw_only=False)
+
+    def _run(self):
+        if not self._connect():
+            return
+        self.thread = StoppableThread(target=self._trade, args=(), daemon=True)
+        self.thread.start()
+
+    def _connect(self) -> bool:
+        try:
+            self.hwnd = win32gui.FindWindow(None, self.game.name)
+            Logger.info(f'{self.__class__.__name__} connected with {self.game.name} {self.hwnd}')
+            return True
+        except RuntimeError as e:
+            Logger.info(f'Unable to connect {self.__class__.__name__} to {self.game.name}. Reason: {e}')
+            return False
+
+    def _trade(self):
+        while not self.thread.stopped():
+            self._press_and_release(self.trade_key)
+            time.sleep(self.delay)
+
+    def _press_and_release(self, key: pynput.keyboard.Key):
+        k = FUNCTION_KEYS.get(key.name) if isinstance(key, pynput.keyboard.Key) else ord(key)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, k, 0)

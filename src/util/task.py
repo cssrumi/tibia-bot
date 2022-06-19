@@ -4,6 +4,7 @@ import time
 import attr
 
 from app.logger import Logger
+from ctx.randomization import Randomization
 from util.switch import Switchable
 
 
@@ -49,6 +50,7 @@ class RepeatableTask(Task, Switchable):
     switch_delay = attr.ib(type=float, kw_only=True, default=0.5)
     condition_delay = attr.ib(type=float, kw_only=True, default=1)
     action_delay = attr.ib(type=float, kw_only=True, default=1)
+    randomization = attr.ib(type=Randomization, kw_only=True, factory=Randomization.disabled)
 
     def _run(self):
         self.thread = StoppableThread(target=self._loop, args=(), daemon=True)
@@ -56,14 +58,15 @@ class RepeatableTask(Task, Switchable):
 
     def _loop(self):
         while not self.thread.stopped():
+            random_delay = self.randomization.randomize()
             if self.is_stopped:
-                time.sleep(self.switch_delay)
+                time.sleep(self.switch_delay + random_delay)
                 continue
             if self._skip_condition():
-                time.sleep(self.condition_delay)
+                time.sleep(self.condition_delay + random_delay)
                 continue
             self._action()
-            time.sleep(self.action_delay)
+            time.sleep(self.action_delay + random_delay)
 
     def _skip_condition(self) -> bool:
         raise NotImplementedError()

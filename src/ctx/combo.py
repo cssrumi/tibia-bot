@@ -1,6 +1,6 @@
 import time
 from itertools import cycle
-from typing import List
+from typing import List, Optional
 
 import attr
 from pynput.keyboard import Key as PPKey, Listener
@@ -11,24 +11,47 @@ from domain.battle import BattleListStateManager
 from domain.cast import Cast
 from domain.game.control import Key
 from domain.game.game import Game
+from domain.monster import DetectedMonster
 from util.task import Task, StoppableThread, RepeatableTask
 
 
 @attr.s
-class AttackSpell(Cast):
+class Attack(Cast):
+    min_monsters_count = attr.ib(type=Optional[int], default=None)
+    max_monsters_count = attr.ib(type=Optional[int], default=None)
+
+    def should_cast(self, player: Player, detected_monsters: List[DetectedMonster] = None) -> bool:
+        return self.player_condition(player) and self.battle_condition(detected_monsters)
+
+    def battle_condition(self, detected_monsters: List[DetectedMonster]):
+        if detected_monsters is None:
+            return False
+        monsters_count = len(detected_monsters)
+        if self.min_monsters_count and monsters_count < self.min_monsters_count:
+            return False
+        if self.max_monsters_count and monsters_count > self.max_monsters_count:
+            return False
+        return True
+
+    def player_condition(self, player: Player) -> bool:
+        raise NotImplementedError()
+
+
+@attr.s
+class AttackSpell(Attack):
     min_mana = attr.ib(type=int, kw_only=True, default=0)
     min_health = attr.ib(type=int, kw_only=True, default=0)
 
-    def should_cast(self, player: Player):
+    def player_condition(self, player: Player):
         return player.health >= self.min_health and player.mana >= self.min_mana
 
 
 @attr.s
-class AttackRune(Cast):
+class AttackRune(Attack):
     min_mana = attr.ib(type=int, kw_only=True, default=100)
     min_health = attr.ib(type=int, kw_only=True, default=100)
 
-    def should_cast(self, player: Player):
+    def player_condition(self, player: Player):
         return True
 
 
@@ -46,7 +69,7 @@ class ComboCaster(RepeatableTask):
     game = attr.ib(type=Game)
     psm = attr.ib(type=PlayerStateManager)
     blsm = attr.ib(type=BattleListStateManager)
-    cast_list = attr.ib(type=List[Cast])
+    cast_list = attr.ib(type=List[Attack])
     delay = attr.ib(type=float, kw_only=True, default=0.1)
     is_stopped = attr.ib(type=bool, kw_only=True, default=True)
     action_delay = attr.ib(type=float, kw_only=True, default=0)
@@ -66,13 +89,13 @@ class ComboCaster(RepeatableTask):
             battle_state = self.blsm.get()
             if battle_state.is_empty() or len(battle_state.get()) == 0:
                 break
-            if cast.should_cast(player):
+            if cast.should_cast(player, battle_state.get()):
                 controller = self.game.controller
                 controller.press(cast.key)
             if cast.delay:
                 time.sleep(cast.delay)
             if self.delay:
-                time.sleep(self.delay)
+                time.sleep(self.delay + self.randomization.randomize())
 
 
 @attr.s
